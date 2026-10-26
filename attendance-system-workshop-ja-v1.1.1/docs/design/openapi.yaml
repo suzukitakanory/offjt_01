@@ -1,0 +1,379 @@
+openapi: 3.0.3
+info:
+  title: 勤怠管理システム API
+  description: |
+    勤怠管理システムのREST API仕様書
+    
+    ## 概要
+    従業員の勤怠記録、休暇申請、カレンダー操作を提供するAPIです。
+    
+  version: 1.0.0
+  contact:
+    name: 勤怠システム開発チーム
+servers:
+  - url: http://localhost:8080
+    description: 開発環境
+  - url: https://api.attendance.example.com
+    description: 本番環境
+
+tags:
+  - name: health
+    description: システムヘルスチェック
+  - name: attendance
+    description: 勤怠記録管理
+
+paths:
+  /actuator/health:
+    get:
+      tags:
+        - health
+      summary: システムヘルスチェック
+      description: |
+        システムの稼働状況を確認する
+        関連要件: REQ-UC001
+      operationId: healthCheck
+      responses:
+        '200':
+          description: システム正常稼働中
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              examples:
+                healthy:
+                  summary: 正常稼働中
+                  value:
+                    status: UP
+                    components:
+                      db:
+                        status: UP
+                        details:
+                          database: PostgreSQL
+                          validationQuery: isValid()
+                      diskSpace:
+                        status: UP
+                        details:
+                          total: 499963174912
+                          free: 123456789012
+                          threshold: 10485760
+                          exists: true
+                      ping:
+                        status: UP
+        '503':
+          description: システム異常
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              examples:
+                unhealthy:
+                  summary: データベース接続エラー
+                  value:
+                    status: DOWN
+                    components:
+                      db:
+                        status: DOWN
+                        details:
+                          error: "org.springframework.jdbc.CannotGetJdbcConnectionException"
+                      diskSpace:
+                        status: UP
+                        details:
+                          total: 499963174912
+                          free: 123456789012
+                          threshold: 10485760
+                          exists: true
+                      ping:
+                        status: UP
+
+  /api/attendance:
+    post:
+      tags:
+        - attendance
+      summary: 勤怠レコード登録・更新
+      description: |
+        従業員の勤務時間または休暇情報を登録・更新する
+        関連要件: UC003（勤務時間入力）, UC004（休暇登録）
+      operationId: saveAttendance
+      # TODO: ローレベル設計でリクエストボディスキーマを定義
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              # TODO: プロパティ定義はローレベル設計で追加
+      responses:
+        '200':
+          description: 勤怠レコード保存成功
+          # TODO: ローレベル設計でレスポンススキーマを定義
+        '400':
+          description: バリデーションエラー
+          # TODO: ローレベル設計でレスポンススキーマを定義
+
+  /api/attendance/{employeeId}/{date}:
+    get:
+      tags:
+        - attendance
+      summary: 特定日の勤怠レコード取得
+      description: |
+        指定した従業員の指定日の勤怠レコードを取得する
+        関連要件: UC003（勤務時間入力）
+      operationId: getAttendanceByDate
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 従業員ID
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 勤怠日（YYYY-MM-DD形式）
+      responses:
+        '200':
+          description: 勤怠レコード取得成功
+          # TODO: ローレベル設計でレスポンススキーマを定義
+        '404':
+          description: 勤怠レコードが見つからない
+          # TODO: ローレベル設計でレスポンススキーマを定義
+
+  /api/attendance/{employeeId}:
+    get:
+      tags:
+        - attendance
+      summary: 従業員の勤怠レコード一覧取得
+      description: |
+        指定した従業員のすべての勤怠レコードを取得する
+        関連要件: REQ-UC002（カレンダー操作）, REQ-UC003（勤務時間入力）
+        
+        **REQ-UC002での利用**:
+        将来的にカレンダー画面で勤怠状態を表示する際に使用する予定。
+        現在の実装では、カレンダー操作はフロントエンドのみで完結しており、
+        このAPIは呼び出されません。
+      operationId: getAttendancesByEmployeeId
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^EMP[0-9]{3}$'
+          description: 従業員ID（例: EMP001）
+          example: EMP001
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: 取得開始日（YYYY-MM-DD形式）。指定した場合、この日付以降のレコードを取得
+          example: "2024-11-01"
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: 取得終了日（YYYY-MM-DD形式）。指定した場合、この日付以前のレコードを取得
+          example: "2024-11-30"
+      responses:
+        '200':
+          description: 勤怠レコード一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttendanceRecord'
+              examples:
+                multipleRecords:
+                  summary: 複数の勤怠レコード
+                  value:
+                    - id: 1
+                      employeeId: "EMP001"
+                      attendanceDate: "2024-11-18"
+                      clockInTime: "09:00:00"
+                      clockOutTime: "18:00:00"
+                      status: "WORK"
+                      notes: null
+                      createdAt: "2024-11-18T09:00:00Z"
+                      updatedAt: "2024-11-18T18:00:00Z"
+                    - id: 2
+                      employeeId: "EMP001"
+                      attendanceDate: "2024-11-19"
+                      clockInTime: null
+                      clockOutTime: null
+                      status: "PAID_LEAVE"
+                      notes: "家族旅行"
+                      createdAt: "2024-11-19T08:00:00Z"
+                      updatedAt: "2024-11-19T08:00:00Z"
+                emptyList:
+                  summary: レコードなし
+                  value: []
+        '400':
+          description: バリデーションエラー（従業員IDの形式が不正など）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Invalid employee ID format"
+                message: "従業員IDの形式が不正です"
+                timestamp: "2024-11-18T10:00:00Z"
+
+components:
+  schemas:
+    # ==========================================
+    # REQ-UC001: システムヘルスチェック
+    # ==========================================
+    HealthResponse:
+      type: object
+      description: システムヘルスチェックのレスポンス
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN, OUT_OF_SERVICE, UNKNOWN]
+          description: |
+            システム全体のステータス
+            - UP: 正常稼働中
+            - DOWN: システム異常
+            - OUT_OF_SERVICE: サービス停止中
+            - UNKNOWN: 不明
+          example: UP
+        components:
+          type: object
+          description: 各コンポーネントの詳細ステータス
+          properties:
+            db:
+              $ref: '#/components/schemas/ComponentHealth'
+            diskSpace:
+              $ref: '#/components/schemas/ComponentHealth'
+            ping:
+              $ref: '#/components/schemas/ComponentHealth'
+    
+    ComponentHealth:
+      type: object
+      description: 個別コンポーネントのヘルス情報
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN, OUT_OF_SERVICE, UNKNOWN]
+          description: コンポーネントのステータス
+          example: UP
+        details:
+          type: object
+          description: コンポーネント固有の詳細情報
+          additionalProperties: true
+          example:
+            database: PostgreSQL
+            validationQuery: isValid()
+
+    # ==========================================
+    # REQ-UC002, UC003, UC004: 勤怠レコード管理
+    # ==========================================
+    AttendanceRecord:
+      type: object
+      description: 勤怠レコード
+      required:
+        - id
+        - employeeId
+        - attendanceDate
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 勤怠レコードID（主キー）
+          example: 1
+        employeeId:
+          type: string
+          pattern: '^EMP[0-9]{3}$'
+          description: 従業員ID
+          example: "EMP001"
+        attendanceDate:
+          type: string
+          format: date
+          description: 勤怠日（YYYY-MM-DD形式）
+          example: "2024-11-18"
+        clockInTime:
+          type: string
+          format: time
+          nullable: true
+          description: |
+            出勤時刻（HH:MM:SS形式）
+            休暇の場合はnull
+          example: "09:00:00"
+        clockOutTime:
+          type: string
+          format: time
+          nullable: true
+          description: |
+            退勤時刻（HH:MM:SS形式）
+            休暇の場合はnull
+          example: "18:00:00"
+        status:
+          type: string
+          enum: [WORK, PAID_LEAVE, SICK_LEAVE, UNPAID_LEAVE]
+          description: |
+            勤怠ステータス
+            - WORK: 出勤
+            - PAID_LEAVE: 有給休暇
+            - SICK_LEAVE: 病欠
+            - UNPAID_LEAVE: 無給休暇
+          example: "WORK"
+        notes:
+          type: string
+          nullable: true
+          description: 備考（休暇理由など）
+          example: "家族旅行"
+        createdAt:
+          type: string
+          format: date-time
+          description: レコード作成日時
+          example: "2024-11-18T09:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: レコード最終更新日時
+          example: "2024-11-18T18:00:00Z"
+
+    ErrorResponse:
+      type: object
+      description: エラーレスポンス
+      required:
+        - error
+        - message
+        - timestamp
+      properties:
+        error:
+          type: string
+          description: エラーコード
+          example: "Invalid input"
+        message:
+          type: string
+          description: エラーメッセージ（日本語）
+          example: "入力値が不正です"
+        timestamp:
+          type: string
+          format: date-time
+          description: エラー発生日時
+          example: "2024-11-18T10:00:00Z"
+        details:
+          type: object
+          description: エラーの詳細情報（オプション）
+          additionalProperties: true
+          example:
+            field: "clockInTime"
+            rejectedValue: "25:00:00"
+            reason: "時刻の形式が不正です"
+

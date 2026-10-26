@@ -1,0 +1,1073 @@
+[
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "req-uc001-システム起動;ユーザーがシステムにアクセスしてメイン画面を表示する",
+        "keyword": "シナリオ",
+        "line": 9,
+        "name": "ユーザーがシステムにアクセスしてメイン画面を表示する",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 120083488
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "システムが正常に稼働している",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:47"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 30303794
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 10,
+            "name": "ユーザーがブラウザーを起動している",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:53"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1316012
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 11,
+            "name": "ユーザーがシステムURL \"http://localhost:5173\" にアクセスする",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:87"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 586866764
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 12,
+            "name": "メイン画面が表示される",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:104"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 68080213
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 13,
+            "name": "カレンダーが表示される",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:110"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 24651616
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 14,
+            "name": "ユーザーが勤怠操作を開始できる状態になる",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:120"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 20723712
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 34396204
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC001",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@smoke",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc001-システム起動;システムヘルスチェックが正常に動作する",
+        "keyword": "シナリオ",
+        "line": 16,
+        "name": "システムヘルスチェックが正常に動作する",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 109393008
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "システムが正常に稼働している",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:47"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 12915827
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 17,
+            "name": "システムが起動している",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:58"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 14922730
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 18,
+            "name": "ヘルスチェックエンドポイント \"/actuator/health\" にアクセスする",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:91"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 25029430
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 19,
+            "name": "ステータスコード 200 が返される",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:132"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3752446
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 20,
+            "name": "レスポンスに \"UP\" ステータスが含まれる",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:137"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 8575019
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 41157374
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC001",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@smoke",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc001-システム起動;各種ブラウザーでメイン画面が正常に表示される",
+        "keyword": "シナリオアウトライン",
+        "line": 30,
+        "name": "各種ブラウザーでメイン画面が正常に表示される",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 88891361
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "システムが正常に稼働している",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:47"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7467850
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 23,
+            "name": "ユーザーが Chrome を起動している",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:68"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1613741
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 24,
+            "name": "システムURLにアクセスする",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:96"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 574094736
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 25,
+            "name": "メイン画面が正常に表示される",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:143"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 54072216
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 26,
+            "name": "カレンダーが正常にレンダリングされる",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:148"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 14016441
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 41240800
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC001",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@smoke",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc001-システム起動;各種ブラウザーでメイン画面が正常に表示される",
+        "keyword": "シナリオアウトライン",
+        "line": 31,
+        "name": "各種ブラウザーでメイン画面が正常に表示される",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 90895696
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "システムが正常に稼働している",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:47"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7182117
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 23,
+            "name": "ユーザーが Firefox を起動している",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:68"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 498717
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 24,
+            "name": "システムURLにアクセスする",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:96"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 586692743
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 25,
+            "name": "メイン画面が正常に表示される",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:143"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 44348719
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 26,
+            "name": "カレンダーが正常にレンダリングされる",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:148"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 17057942
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 30555037
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC001",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@smoke",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc001-システム起動;各種ブラウザーでメイン画面が正常に表示される",
+        "keyword": "シナリオアウトライン",
+        "line": 32,
+        "name": "各種ブラウザーでメイン画面が正常に表示される",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 175445609
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "システムが正常に稼働している",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:47"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 22712901
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 23,
+            "name": "ユーザーが Edge を起動している",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:68"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 989733
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 24,
+            "name": "システムURLにアクセスする",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:96"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 594804316
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 25,
+            "name": "メイン画面が正常に表示される",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:143"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 48055871
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 26,
+            "name": "カレンダーが正常にレンダリングされる",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:148"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 12330568
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 51919583
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC001",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@smoke",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "req-uc001-システム起動",
+    "line": 4,
+    "keyword": "機能",
+    "name": "REQ-UC001 システム起動",
+    "tags": [
+      {
+        "name": "@REQ-UC001",
+        "line": 3
+      },
+      {
+        "name": "@e2e",
+        "line": 3
+      },
+      {
+        "name": "@smoke",
+        "line": 3
+      }
+    ],
+    "uri": "features/REQ-UC001-システム起動.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "req-uc002-カレンダー操作;従業員がカレンダーから日付を選択する",
+        "keyword": "シナリオ",
+        "line": 10,
+        "name": "従業員がカレンダーから日付を選択する",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 92131173
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "従業員がシステムにアクセスしている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 561872237
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 8,
+            "name": "メイン画面が表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51738992
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 11,
+            "name": "カレンダーが表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:80"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 15888927
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 12,
+            "name": "従業員が任意の日付を選択する",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:106"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 100107519
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 13,
+            "name": "選択した日付がハイライトされる",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:142"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 6800600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 14,
+            "name": "選択日付に応じた操作オプションが表示される",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:151"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 13595274
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 29050611
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC002",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@calendar",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc002-カレンダー操作;カレンダーで月を切り替える",
+        "keyword": "シナリオ",
+        "line": 16,
+        "name": "カレンダーで月を切り替える",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 96545342
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "従業員がシステムにアクセスしている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 565409845
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 8,
+            "name": "メイン画面が表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 59943851
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 17,
+            "name": "カレンダーが表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:80"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 18204200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 18,
+            "name": "従業員が次月ボタンをクリックする",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:119"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 146005384
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 19,
+            "name": "カレンダーが次月に切り替わる",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:165"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 10265757
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 20,
+            "name": "次月の日付が表示される",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:186"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 17692892
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 80081780
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC002",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@calendar",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc002-カレンダー操作;カレンダーで異なる日付を選択する",
+        "keyword": "シナリオ",
+        "line": 22,
+        "name": "カレンダーで異なる日付を選択する",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 167539557
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "従業員がシステムにアクセスしている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 571044094
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 8,
+            "name": "メイン画面が表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 56086468
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 23,
+            "name": "カレンダーが表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:80"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 19884841
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 24,
+            "name": "日付 \"2025-01-15\" が選択されている",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:95"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1839795308
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 25,
+            "name": "従業員が日付 \"2025-01-20\" を選択する",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:132"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 74155180
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 26,
+            "name": "日付 \"2025-01-20\" がハイライトされる",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:198"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 11685748
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 27,
+            "name": "以前選択していた日付 \"2025-01-15\" のハイライトが解除される",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:204"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 12923555
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 28,
+            "name": "操作オプションが日付 \"2025-01-20\" に対応した内容に更新される",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:210"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 20603900
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 81810746
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC002",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@calendar",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc002-カレンダー操作;カレンダーで今日の日付を確認する",
+        "keyword": "シナリオ",
+        "line": 30,
+        "name": "カレンダーで今日の日付を確認する",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 181849109
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "従業員がシステムにアクセスしている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 615595568
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 8,
+            "name": "メイン画面が表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 46193475
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 31,
+            "name": "カレンダーが表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:80"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 11945877
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 32,
+            "name": "今日の日付が特別なマーキングで表示される",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:221"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 9091037
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 33,
+            "name": "今日の日付を簡単に識別できる",
+            "match": {
+              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:231"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 31894745
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 43523018
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC002",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@calendar",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "req-uc002-カレンダー操作",
+    "line": 4,
+    "keyword": "機能",
+    "name": "REQ-UC002 カレンダー操作",
+    "tags": [
+      {
+        "name": "@REQ-UC002",
+        "line": 3
+      },
+      {
+        "name": "@e2e",
+        "line": 3
+      },
+      {
+        "name": "@calendar",
+        "line": 3
+      }
+    ],
+    "uri": "features/REQ-UC002-カレンダー操作.feature"
+  }
+]

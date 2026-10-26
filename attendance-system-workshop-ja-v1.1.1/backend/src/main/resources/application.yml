@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: attendance-system-backend
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/attendance_db
+    username: attendance_user
+    password: attendance_password
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+  docker:
+    compose:
+      enabled: true
+      file: compose.yaml
+      lifecycle-management: start_and_stop
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
