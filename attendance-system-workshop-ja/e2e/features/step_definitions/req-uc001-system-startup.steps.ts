@@ -131,11 +131,17 @@ Then('ユーザーが勤怠操作を開始できる状態になる', async funct
 
 Then('ステータスコード {int} が返される', async function (this: World, statusCode: number) {
   const response = this.context.healthCheckResponse;
+  if (!response) {
+    throw new Error('ヘルスチェックレスポンスがありません');
+  }
   expect(response.status()).toBe(statusCode);
 });
 
 Then('レスポンスに {string} ステータスが含まれる', async function (this: World, status: string) {
   const response = this.context.healthCheckResponse;
+  if (!response) {
+    throw new Error('ヘルスチェックレスポンスがありません');
+  }
   const body = await response.json();
   expect(body.status).toBe(status);
 });

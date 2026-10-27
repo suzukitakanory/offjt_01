@@ -14,8 +14,10 @@ import java.time.LocalDateTime;
  * 関連要件: REQ-UC003 - 勤務時間入力, REQ-UC004 - 休暇登録
  */
 @Entity
-@Table(name = "attendance_records", 
-       uniqueConstraints = @UniqueConstraint(columnNames = {"employee_id", "attendance_date"}))
+@Table(name = "attendance_records",
+       uniqueConstraints = @UniqueConstraint(
+               name = "uk_attendance_employee_date",
+               columnNames = {"employee_id", "attendance_date"}))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,7 +39,7 @@ public class AttendanceRecord {
     @Column(name = "clock_out_time")
     private LocalTime clockOutTime;
 
-    @Column(name = "status", length = 50)
+    @Column(name = "status", nullable = false, length = 20)
     private String status;
 
     @Column(name = "notes", columnDefinition = "TEXT")

@@ -92,23 +92,97 @@ paths:
       summary: 勤怠レコード登録・更新
       description: |
         従業員の勤務時間または休暇情報を登録・更新する
-        関連要件: UC003（勤務時間入力）, UC004（休暇登録）
+        関連要件: REQ-UC003（勤務時間入力）, REQ-UC004（休暇登録）
+        従業員IDと勤怠日の組み合わせをキーとして、既存レコードがあれば更新し、
+        なければ新規作成する。勤務時間（WORK）の場合は出勤・退勤時刻を両方指定し、
+        出勤時刻が退勤時刻より前でなければならない。未来日付も指定できる。
       operationId: saveAttendance
-      # TODO: ローレベル設計でリクエストボディスキーマを定義
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              # TODO: プロパティ定義はローレベル設計で追加
+              $ref: '#/components/schemas/AttendanceSaveRequest'
+            example:
+              employeeId: "EMP001"
+              attendanceDate: "2025-01-15"
+              clockInTime: "09:00"
+              clockOutTime: "18:00"
+              status: "WORK"
+              notes: null
       responses:
         '200':
           description: 勤怠レコード保存成功
-          # TODO: ローレベル設計でレスポンススキーマを定義
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecord'
+              example:
+                id: 1
+                employeeId: "EMP001"
+                attendanceDate: "2025-01-15"
+                clockInTime: "09:00:00"
+                clockOutTime: "18:00:00"
+                status: "WORK"
+                notes: null
+                createdAt: "2025-01-15T09:00:00Z"
+                updatedAt: "2025-01-15T18:00:00Z"
         '400':
-          description: バリデーションエラー
-          # TODO: ローレベル設計でレスポンススキーマを定義
+          description: |
+            リクエスト形式または入力値のバリデーションエラー。
+            勤務時刻はHH:MM形式（00:00～23:59）で、出勤時刻は退勤時刻より前であること。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidTimeFormat:
+                  summary: 時刻形式が不正
+                  value:
+                    error: "ERR03002"
+                    message: "有効な時刻形式で入力してください"
+                    timestamp: "2025-01-15T10:00:00Z"
+                    details:
+                      field: "clockInTime"
+                      rejectedValue: "25:00"
+                      reason: "時刻形式が不正です"
+                invalidTimeOrder:
+                  summary: 出勤時刻が退勤時刻以降
+                  value:
+                    error: "ERR03001"
+                    message: "出勤時刻は退勤時刻より前である必要があります"
+                    timestamp: "2025-01-15T10:00:00Z"
+                    details:
+                      field: "clockInTime"
+                      reason: "退勤時刻より前である必要があります"
+                invalidEmployeeId:
+                  summary: 従業員IDの形式が不正
+                  value:
+                    error: "ERR03003"
+                    message: "従業員IDの形式が不正です"
+                    timestamp: "2025-01-15T10:00:00Z"
+                    details:
+                      field: "employeeId"
+                      rejectedValue: "employee-1"
+                      reason: "EMPに続く3桁の数字で指定してください"
+                missingWorkTime:
+                  summary: WORKの出退勤時刻が不足
+                  value:
+                    error: "ERR03005"
+                    message: "出勤時刻と退勤時刻を入力してください"
+                    timestamp: "2025-01-15T10:00:00Z"
+                    details:
+                      field: "clockInTime"
+                      reason: "WORKの場合は出勤時刻と退勤時刻が必須です"
+                invalidStatus:
+                  summary: 勤怠ステータスが不正
+                  value:
+                    error: "ERR03006"
+                    message: "勤怠ステータスが不正です"
+                    timestamp: "2025-01-15T10:00:00Z"
+                    details:
+                      field: "status"
+                      reason: "定義された勤怠ステータスを指定してください"
 
   /api/attendance/{employeeId}/{date}:
     get:
@@ -125,7 +199,9 @@ paths:
           required: true
           schema:
             type: string
+            pattern: '^EMP[0-9]{3}$'
           description: 従業員ID
+          example: EMP001
         - name: date
           in: path
           required: true
@@ -133,13 +209,59 @@ paths:
             type: string
             format: date
           description: 勤怠日（YYYY-MM-DD形式）
+          example: "2025-01-15"
       responses:
         '200':
           description: 勤怠レコード取得成功
-          # TODO: ローレベル設計でレスポンススキーマを定義
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecord'
+              example:
+                id: 1
+                employeeId: "EMP001"
+                attendanceDate: "2025-01-15"
+                clockInTime: "09:00:00"
+                clockOutTime: "18:00:00"
+                status: "WORK"
+                notes: null
+                createdAt: "2025-01-15T09:00:00Z"
+                updatedAt: "2025-01-15T18:00:00Z"
         '404':
           description: 勤怠レコードが見つからない
-          # TODO: ローレベル設計でレスポンススキーマを定義
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Attendance record not found"
+                message: "指定された日付の勤怠レコードが見つかりません"
+                timestamp: "2025-01-15T10:00:00Z"
+        '400':
+          description: 従業員IDまたは勤怠日の形式が不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidEmployeeId:
+                  summary: 従業員IDの形式が不正
+                  value:
+                    error: "ERR03003"
+                    message: "従業員IDの形式が不正です"
+                    timestamp: "2025-01-15T10:00:00Z"
+                    details:
+                      field: "employeeId"
+                      rejectedValue: "employee-1"
+                invalidDate:
+                  summary: 日付の形式または値が不正
+                  value:
+                    error: "ERR03004"
+                    message: "有効な日付をYYYY-MM-DD形式で指定してください"
+                    timestamp: "2025-01-15T10:00:00Z"
+                    details:
+                      field: "date"
+                      rejectedValue: "2025-02-30"
 
   /api/attendance/{employeeId}:
     get:
@@ -162,7 +284,7 @@ paths:
           schema:
             type: string
             pattern: '^EMP[0-9]{3}$'
-          description: 従業員ID（例: EMP001）
+          description: "従業員ID（例: EMP001）"
           example: EMP001
         - name: startDate
           in: query
@@ -220,10 +342,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                error: "Invalid employee ID format"
-                message: "従業員IDの形式が不正です"
-                timestamp: "2024-11-18T10:00:00Z"
+              examples:
+                invalidEmployeeId:
+                  summary: 従業員IDの形式が不正
+                  value:
+                    error: "ERR03003"
+                    message: "従業員IDの形式が不正です"
+                    timestamp: "2024-11-18T10:00:00Z"
+                    details:
+                      field: "employeeId"
+                      rejectedValue: "employee-1"
+                      reason: "EMPに続く3桁の数字で指定してください"
 
 components:
   schemas:
@@ -347,6 +476,72 @@ components:
           description: レコード最終更新日時
           example: "2024-11-18T18:00:00Z"
 
+    AttendanceSaveRequest:
+      type: object
+      description: 勤怠レコード登録・更新リクエスト
+      required:
+        - employeeId
+        - attendanceDate
+        - status
+      properties:
+        employeeId:
+          type: string
+          pattern: '^EMP[0-9]{3}$'
+          description: 従業員ID
+          example: "EMP001"
+        attendanceDate:
+          type: string
+          format: date
+          description: 勤怠日（YYYY-MM-DD形式。未来日付も許可）
+          example: "2025-01-15"
+        status:
+          type: string
+          enum: [WORK, PAID_LEAVE, SICK_LEAVE, UNPAID_LEAVE]
+          description: 勤怠ステータス。勤務時間入力ではWORKを指定し、出退勤時刻を必須とする。
+          example: "WORK"
+        notes:
+          type: string
+          nullable: true
+          description: 備考（休暇理由など）
+          example: null
+      allOf:
+        - oneOf:
+            - title: 勤務時間レコード
+              type: object
+              required:
+                - clockInTime
+                - clockOutTime
+              properties:
+                status:
+                  type: string
+                  enum: [WORK]
+                clockInTime:
+                  type: string
+                  pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+                  description: 出勤時刻（HH:MM形式）
+                  example: "09:00"
+                clockOutTime:
+                  type: string
+                  pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+                  description: 退勤時刻（HH:MM形式、出勤時刻より後）
+                  example: "18:00"
+            - title: 休暇レコード
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [PAID_LEAVE, SICK_LEAVE, UNPAID_LEAVE]
+                clockInTime:
+                  type: string
+                  nullable: true
+                  pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+                  description: 休暇の場合はnull
+                clockOutTime:
+                  type: string
+                  nullable: true
+                  pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+                  description: 休暇の場合はnull
+
     ErrorResponse:
       type: object
       description: エラーレスポンス
@@ -358,11 +553,11 @@ components:
         error:
           type: string
           description: エラーコード
-          example: "Invalid input"
+          example: "ERR03002"
         message:
           type: string
           description: エラーメッセージ（日本語）
-          example: "入力値が不正です"
+          example: "有効な時刻形式で入力してください"
         timestamp:
           type: string
           format: date-time
@@ -374,6 +569,5 @@ components:
           additionalProperties: true
           example:
             field: "clockInTime"
-            rejectedValue: "25:00:00"
+            rejectedValue: "25:00"
             reason: "時刻の形式が不正です"
-

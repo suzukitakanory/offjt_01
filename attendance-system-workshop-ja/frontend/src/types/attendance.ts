@@ -22,6 +22,6 @@ export interface AttendanceRequest {
   attendanceDate: string
   clockInTime?: string
   clockOutTime?: string
-  status?: string
+  status: string
   notes?: string
 }

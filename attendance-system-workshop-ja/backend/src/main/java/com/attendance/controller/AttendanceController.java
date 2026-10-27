@@ -2,11 +2,14 @@ package com.attendance.controller;
 
 import com.attendance.dto.AttendanceRequest;
 import com.attendance.dto.AttendanceResponse;
+import com.attendance.exception.AttendanceApiException;
 import com.attendance.service.AttendanceService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 勤怠コントローラー
@@ -25,24 +28,25 @@ public class AttendanceController {
 
     /**
      * 勤怠レコードを登録・更新する
-     * TODO: REQ-UC003, REQ-UC004 - 勤怠レコード登録・更新APIの実装
      */
     @PostMapping
     public ResponseEntity<AttendanceResponse> saveAttendance(@RequestBody AttendanceRequest request) {
-        // TODO: REQ-UC003, REQ-UC004 - 実装予定
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(attendanceService.saveAttendance(request));
     }
 
     /**
      * 特定日の勤怠レコードを取得する
-     * TODO: REQ-UC003 - 特定日勤怠レコード取得APIの実装
      */
     @GetMapping("/{employeeId}/{date}")
     public ResponseEntity<AttendanceResponse> getAttendanceByDate(
-            @PathVariable String employeeId,
-            @PathVariable String date) {
-        // TODO: REQ-UC003 - 実装予定
-        return ResponseEntity.ok(null);
+            @PathVariable("employeeId") String employeeId,
+            @PathVariable("date") String date) {
+        return ResponseEntity.ok(attendanceService.getAttendanceByDate(employeeId, date)
+                .orElseThrow(() -> new AttendanceApiException(
+                        HttpStatus.NOT_FOUND,
+                        "Attendance record not found",
+                        "指定された日付の勤怠レコードが見つかりません",
+                        Map.of())));
     }
 
     /**

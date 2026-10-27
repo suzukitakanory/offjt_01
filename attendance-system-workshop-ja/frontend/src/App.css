@@ -206,3 +206,53 @@
   color: #666;
   font-style: italic;
 }
+
+.work-time-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.work-time-modal {
+  width: min(100%, 32rem);
+  padding: 1.5rem;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.work-time-modal-header,
+.work-time-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.work-time-modal-header h2 {
+  margin: 0;
+}
+
+.work-time-modal form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.work-time-modal input {
+  padding: 0.6rem;
+  font: inherit;
+}
+
+.form-message {
+  margin: 0;
+  color: #b00020;
+}
+
+.work-time-form-actions {
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
