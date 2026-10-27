@@ -152,13 +152,14 @@ mvn test jacoco:report
 
 ### 既存データベースへの制約適用
 
-既存のPostgreSQLボリュームには `init-db/` のスクリプトは再実行されません。既存データベースに勤怠レコードの制約を適用する場合は、事前にデータをバックアップし、既存データが新しい制約に適合することを確認してから、`backend/` ディレクトリで次を実行してください。
+既存のPostgreSQLボリュームには `init-db/` のスクリプトは再実行されません。既存データベースには、事前にデータをバックアップし、既存データが各制約に適合することを確認したうえで、`backend/` ディレクトリからマイグレーションを番号順に実行してください。
 
 ```bash
 docker compose exec -T postgres psql -U attendance_user -d attendance_db < migrations/001_attendance_record_constraints.sql
+docker compose exec -T postgres psql -U attendance_user -d attendance_db < migrations/002_attendance_leave_statuses.sql
 ```
 
-制約に適合しないデータや従業員・日付の重複がある場合、マイグレーションはエラーで終了します。データを確認・修正してから再実行してください。
+制約に適合しないデータや従業員・日付の重複がある場合、該当するマイグレーションはエラーで終了します。データを確認・修正してから再実行してください。
 
 ## 開発ガイドライン
 

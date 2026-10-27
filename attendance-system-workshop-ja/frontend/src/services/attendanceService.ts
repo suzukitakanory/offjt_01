@@ -66,6 +66,27 @@ export const getAttendanceByDate = async (
   return response.json() as Promise<AttendanceRecord>
 }
 
+/**
+ * 指定日の休暇レコードを削除する。
+ */
+export const deleteLeaveByDate = async (employeeId: string, date: string): Promise<void> => {
+  let response: Response
+  try {
+    response = await fetch(`${API_BASE_URL}/${employeeId}/${date}`, {
+      method: 'DELETE',
+    })
+  } catch {
+    throw new AttendanceServiceError(
+      'ERR99002',
+      'ネットワークエラーが発生しました。接続を確認してください。'
+    )
+  }
+
+  if (!response.ok) {
+    throw await readApiError(response)
+  }
+}
+
 async function readApiError(response: Response): Promise<AttendanceServiceError> {
   const body: unknown = await response.json()
   if (

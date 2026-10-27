@@ -50,6 +50,17 @@ public class AttendanceController {
     }
 
     /**
+     * 特定日の休暇レコードを削除する
+     */
+    @DeleteMapping("/{employeeId}/{date}")
+    public ResponseEntity<Void> deleteLeaveByDate(
+            @PathVariable("employeeId") String employeeId,
+            @PathVariable("date") String date) {
+        attendanceService.deleteLeaveByDate(employeeId, date);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * 従業員の勤怠レコード一覧を取得する
      * TODO: REQ-UC002 - 勤怠レコード一覧取得APIの実装
      */
