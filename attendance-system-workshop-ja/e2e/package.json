@@ -5,7 +5,8 @@
   "scripts": {
     "test": "cucumber-js --config cucumber.config.js",
     "test:smoke": "cucumber-js --config cucumber.config.js --tags @smoke",
-    "test:req-uc001": "cucumber-js --config cucumber.config.js --tags @REQ-UC001"
+    "test:req-uc001": "cucumber-js --config cucumber.config.js --tags @REQ-UC001",
+    "test:req-uc003": "cucumber-js --config cucumber.config.js --tags @REQ-UC003"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^11.0.0",

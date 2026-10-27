@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AttendanceRequest {
 
-    // TODO: REQ-UC003, REQ-UC004 - リクエストフィールドの詳細定義
     private String employeeId;
     private String attendanceDate;
     private String clockInTime;

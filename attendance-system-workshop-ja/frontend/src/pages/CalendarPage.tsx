@@ -1,5 +1,13 @@
 import React, { useState } from 'react'
 import Calendar from '../components/Calendar'
+import WorkTimeForm from '../components/WorkTimeForm'
+
+const formatDateKey = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = `${date.getMonth() + 1}`.padStart(2, '0')
+  const day = `${date.getDate()}`.padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 /**
  * メイン画面（カレンダー表示）
@@ -8,10 +16,13 @@ import Calendar from '../components/Calendar'
  */
 const CalendarPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [isWorkTimeFormOpen, setIsWorkTimeFormOpen] = useState(false)
+  const [notice, setNotice] = useState('')
 
   // 日付選択時のハンドラー (REQ-UC002)
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date)
+    setNotice('')
   }
 
   // 日付をフォーマット
@@ -35,7 +46,7 @@ const CalendarPage: React.FC = () => {
               <button 
                 className="btn-work-time"
                 data-testid="btn-work-time"
-                disabled
+                onClick={() => setIsWorkTimeFormOpen(true)}
               >
                 勤務時間入力
               </button>
@@ -47,10 +58,20 @@ const CalendarPage: React.FC = () => {
                 休暇登録
               </button>
             </div>
-            <p className="info-text">
-              ※ 勤務時間入力と休暇登録機能は今後の要件で実装されます
-            </p>
+            <p className="info-text">休暇登録機能は今後の要件で実装されます</p>
           </div>
+        )}
+        {notice && <p role="status" data-testid="save-success">{notice}</p>}
+        {isWorkTimeFormOpen && selectedDate && (
+          <WorkTimeForm
+            key={formatDateKey(selectedDate)}
+            attendanceDate={selectedDate}
+            onClose={() => setIsWorkTimeFormOpen(false)}
+            onSaved={(message) => {
+              setNotice(message)
+              setIsWorkTimeFormOpen(false)
+            }}
+          />
         )}
       </main>
     </div>

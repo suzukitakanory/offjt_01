@@ -54,12 +54,12 @@ erDiagram
 
 | カラム名        | 論理名     | データ型    | Not Null | 既定値            | 説明                                                                                      |
 | --------------- | ---------- | ----------- | -------- | ----------------- | ----------------------------------------------------------------------------------------- |
-| id              | ID         | BIGINT      | ✓        | AUTO_INCREMENT    | 勤怠レコードの一意識別子（主キー）                                                        |
+| id              | ID         | BIGSERIAL   | ✓        | 自動採番          | 勤怠レコードの一意識別子（主キー、PostgreSQLのシーケンス）                                |
 | employee_id     | 従業員ID   | VARCHAR(50) | ✓        | -                 | 従業員を識別するID<br/>例: "EMP001"                                                       |
 | attendance_date | 勤怠日     | DATE        | ✓        | -                 | 勤怠記録の対象日<br/>形式: YYYY-MM-DD                                                     |
 | clock_in_time   | 出勤時刻   | TIME        |          | NULL              | 出勤時刻<br/>形式: HH:MM:SS<br/>休暇の場合はNULL                                          |
 | clock_out_time  | 退勤時刻   | TIME        |          | NULL              | 退勤時刻<br/>形式: HH:MM:SS<br/>休暇の場合はNULL                                          |
-| status          | ステータス | VARCHAR(20) | ✓        | 'WORK'            | 勤怠ステータス<br/>値: 'WORK'（出勤）, 'PAID_LEAVE'（有給休暇）, 'SICK_LEAVE'（病欠）など |
+| status          | ステータス | VARCHAR(20) | ✓        | 'WORK'            | 勤怠ステータス<br/>値: 'WORK'（出勤）, 'PAID_LEAVE'（有給休暇）, 'SICK_LEAVE'（病欠）, 'UNPAID_LEAVE'（無給休暇） |
 | notes           | 備考       | TEXT        |          | NULL              | 勤怠に関する追加情報やメモ<br/>最大長: 制限なし                                           |
 | created_at      | 作成日時   | TIMESTAMP   | ✓        | CURRENT_TIMESTAMP | レコード作成日時<br/>自動設定                                                             |
 | updated_at      | 更新日時   | TIMESTAMP   | ✓        | CURRENT_TIMESTAMP | レコード最終更新日時<br/>更新時に自動更新                                                 |
@@ -83,15 +83,14 @@ erDiagram
 | 制約名                     | 条件                                                                               | 説明                                   |
 | -------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------- |
 | chk_attendance_status      | status IN ('WORK', 'PAID_LEAVE', 'SICK_LEAVE', 'UNPAID_LEAVE')                     | ステータスは定義された値のみ許可       |
-| chk_attendance_clock_times | clock_out_time IS NULL OR clock_in_time IS NULL OR clock_out_time >= clock_in_time | 退勤時刻は出勤時刻以降である必要がある |
+| chk_attendance_clock_times | clock_out_time IS NULL OR clock_in_time IS NULL OR clock_out_time > clock_in_time | 出勤時刻が退勤時刻より前であること     |
+| chk_attendance_work_times  | status <> 'WORK' OR (clock_in_time IS NOT NULL AND clock_out_time IS NOT NULL)     | 出勤レコードでは出勤・退勤時刻を必須とする |
 
 ##### インデックス (Index)
 
-| インデックス名               | カラム                       | 種別       | 説明                                                 |
-| ---------------------------- | ---------------------------- | ---------- | ---------------------------------------------------- |
-| idx_attendance_employee      | employee_id                  | Non-Unique | 従業員IDでの検索を高速化                             |
-| idx_attendance_date          | attendance_date              | Non-Unique | 日付での検索を高速化                                 |
-| idx_attendance_employee_date | employee_id, attendance_date | Unique     | 従業員と日付の複合検索を高速化（一意キーとして機能） |
+| インデックス名               | カラム                       | 種別   | 説明 |
+| ---------------------------- | ---------------------------- | ------ | ---- |
+| uk_attendance_employee_date  | employee_id, attendance_date | Unique | 一意制約により自動作成され、UC003の日付別検索・登録／更新に使用。重複する別インデックスは作成しない |
 
 **カラム詳細説明**:
 
@@ -129,6 +128,23 @@ VALUES ('EMP001', '2024-11-20', NULL, NULL, 'SICK_LEAVE', '風邪のため');
 | REQ-UC003 | INSERT/UPDATE | 勤務時間入力時にレコードを作成または更新                                               |
 | REQ-UC004 | INSERT/UPDATE | 休暇登録時にレコードを作成または更新                                                   |
 
+**REQ-UC003（勤務時間入力）の詳細**:
+
+| API／画面データ | `attendance_records` のカラム | 保存・取得ルール |
+| --------------- | ----------------------------- | --------------- |
+| 従業員ID | `employee_id` | 保存と検索に使用。現行は `EMP001`。 |
+| 選択日（`YYYY-MM-DD`） | `attendance_date` | 保存と検索に使用。未来日付も許可し、日付範囲の制約は設けない。 |
+| 出勤時刻（`HH:MM`） | `clock_in_time` | `TIME`型で保存。画面・保存APIでは分単位で扱い、取得時に秒を画面表示しない。 |
+| 退勤時刻（`HH:MM`） | `clock_out_time` | `TIME`型で保存。`clock_in_time`より後であること。 |
+| 勤怠ステータス | `status` | 勤務時間入力では `WORK` を保存する。 |
+
+**整合性・アクセスルール**:
+
+- `WORK` のレコードは `clock_in_time` と `clock_out_time` の両方を必須とし、`clock_out_time > clock_in_time` を満たすこと。これらの条件に違反する登録・更新は拒否し、同一トランザクション内の変更をロールバックする。
+- `uk_attendance_employee_date` により、同じ従業員・勤怠日のレコードは一件に限定する。保存処理はこの組み合わせをキーに既存行を更新し、未登録の場合は新規行を作成する。
+- 特定日の取得は `employee_id` と `attendance_date` の完全一致で検索する。該当行がない場合はAPIが `404` を返し、DB上の行は作成しない。
+- 複合一意キーはUC003の取得・保存対象の検索にも使用する。登録・更新は `attendance_records` の一行を対象とし、他の日付のレコードを変更しない。
+
 **REQ-UC002（カレンダー操作）の詳細**:
 
 現在の実装では、カレンダーの日付選択と月切り替えはフロントエンド側の状態管理のみで実現されており、データベースへのアクセスは発生しません。
@@ -154,10 +170,11 @@ WHERE employee_id = 'EMP001'
   AND attendance_date = '2024-11-18';
 ```
 
-これらのクエリは、既存のインデックス（`idx_attendance_employee_date`）により効率的に実行されます。
+これらのクエリは、複合一意制約のインデックス（`uk_attendance_employee_date`）により効率的に実行されます。従業員IDを先頭列とするため、従業員ID単独の検索にも利用できます。日付単独の検索要件が追加された場合は、実行計画を確認したうえで専用インデックスを検討します。
 
 **備考**:
 
 - `employee_id`は将来的に従業員マスターテーブルの外部キーとなる予定
 - `created_at`と`updated_at`はデータベーストリガーまたはJPAの`@CreatedDate`、`@LastModifiedDate`アノテーションで自動設定
-- テーブル作成DDLは`backend/init-db/01-schema.sql`に定義
+- 新規DBのテーブル作成DDLは`backend/init-db/01-schema.sql`に定義
+- 既存DBには初期化DDLが再実行されないため、バックエンド起動前に `psql` で `backend/migrations/001_attendance_record_constraints.sql` を適用して制約を更新する（不整合データがある場合は移行を中断し、データを自動補完しない）

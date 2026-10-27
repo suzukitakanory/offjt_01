@@ -1,5 +1,16 @@
-import { Page, Browser } from '@playwright/test';
+import { APIResponse, Page, Browser } from '@playwright/test';
 import { setWorldConstructor, World as CucumberWorld } from '@cucumber/cucumber';
+
+interface WorldContext {
+  selectedDate?: string;
+  previousMonthTitle?: string;
+  healthCheckResponse?: APIResponse;
+  attendanceResponse?: {
+    status: number;
+    body: unknown;
+  };
+  saveRequestCount?: number;
+}
 
 /**
  * Cucumberワールドインターフェース
@@ -9,12 +20,7 @@ import { setWorldConstructor, World as CucumberWorld } from '@cucumber/cucumber'
 export interface World extends CucumberWorld {
   page: Page;
   browser?: Browser;
-  context: {
-    [key: string]: any;
-    selectedDate?: string;
-    previousMonthTitle?: string;
-    healthCheckResponse?: any;
-  };
+  context: WorldContext;
 }
 
 /**
@@ -23,12 +29,7 @@ export interface World extends CucumberWorld {
 class CustomWorld extends CucumberWorld implements World {
   page!: Page;
   browser?: Browser;
-  context: {
-    [key: string]: any;
-    selectedDate?: string;
-    previousMonthTitle?: string;
-    healthCheckResponse?: any;
-  } = {};
+  context: WorldContext = {};
 }
 
 setWorldConstructor(CustomWorld);
