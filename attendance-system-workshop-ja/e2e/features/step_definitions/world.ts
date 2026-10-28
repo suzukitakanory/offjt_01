@@ -10,6 +10,7 @@ interface WorldContext {
     body: unknown;
   };
   saveRequestCount?: number;
+  leaveRecordId?: number;
 }
 
 /**

@@ -4,579 +4,17 @@
     "elements": [
       {
         "description": "",
-        "id": "req-uc001-システム起動;ユーザーがシステムにアクセスしてメイン画面を表示する",
-        "keyword": "シナリオ",
-        "line": 9,
-        "name": "ユーザーがシステムにアクセスしてメイン画面を表示する",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 120083488
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 7,
-            "name": "システムが正常に稼働している",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:47"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 30303794
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 10,
-            "name": "ユーザーがブラウザーを起動している",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:53"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 1316012
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "もし",
-            "line": 11,
-            "name": "ユーザーがシステムURL \"http://localhost:5173\" にアクセスする",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:87"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 586866764
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "ならば",
-            "line": 12,
-            "name": "メイン画面が表示される",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:104"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 68080213
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "かつ",
-            "line": 13,
-            "name": "カレンダーが表示される",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:110"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 24651616
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "かつ",
-            "line": 14,
-            "name": "ユーザーが勤怠操作を開始できる状態になる",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:120"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 20723712
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 34396204
-            }
-          }
-        ],
-        "tags": [
-          {
-            "name": "@REQ-UC001",
-            "line": 3
-          },
-          {
-            "name": "@e2e",
-            "line": 3
-          },
-          {
-            "name": "@smoke",
-            "line": 3
-          }
-        ],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "req-uc001-システム起動;システムヘルスチェックが正常に動作する",
-        "keyword": "シナリオ",
-        "line": 16,
-        "name": "システムヘルスチェックが正常に動作する",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 109393008
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 7,
-            "name": "システムが正常に稼働している",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:47"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 12915827
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 17,
-            "name": "システムが起動している",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:58"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 14922730
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "もし",
-            "line": 18,
-            "name": "ヘルスチェックエンドポイント \"/actuator/health\" にアクセスする",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:91"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 25029430
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "ならば",
-            "line": 19,
-            "name": "ステータスコード 200 が返される",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:132"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 3752446
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "かつ",
-            "line": 20,
-            "name": "レスポンスに \"UP\" ステータスが含まれる",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:137"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 8575019
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 41157374
-            }
-          }
-        ],
-        "tags": [
-          {
-            "name": "@REQ-UC001",
-            "line": 3
-          },
-          {
-            "name": "@e2e",
-            "line": 3
-          },
-          {
-            "name": "@smoke",
-            "line": 3
-          }
-        ],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "req-uc001-システム起動;各種ブラウザーでメイン画面が正常に表示される",
-        "keyword": "シナリオアウトライン",
-        "line": 30,
-        "name": "各種ブラウザーでメイン画面が正常に表示される",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 88891361
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 7,
-            "name": "システムが正常に稼働している",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:47"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 7467850
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 23,
-            "name": "ユーザーが Chrome を起動している",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:68"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 1613741
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "もし",
-            "line": 24,
-            "name": "システムURLにアクセスする",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:96"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 574094736
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "ならば",
-            "line": 25,
-            "name": "メイン画面が正常に表示される",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:143"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 54072216
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "かつ",
-            "line": 26,
-            "name": "カレンダーが正常にレンダリングされる",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:148"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 14016441
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 41240800
-            }
-          }
-        ],
-        "tags": [
-          {
-            "name": "@REQ-UC001",
-            "line": 3
-          },
-          {
-            "name": "@e2e",
-            "line": 3
-          },
-          {
-            "name": "@smoke",
-            "line": 3
-          }
-        ],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "req-uc001-システム起動;各種ブラウザーでメイン画面が正常に表示される",
-        "keyword": "シナリオアウトライン",
-        "line": 31,
-        "name": "各種ブラウザーでメイン画面が正常に表示される",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 90895696
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 7,
-            "name": "システムが正常に稼働している",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:47"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 7182117
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 23,
-            "name": "ユーザーが Firefox を起動している",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:68"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 498717
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "もし",
-            "line": 24,
-            "name": "システムURLにアクセスする",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:96"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 586692743
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "ならば",
-            "line": 25,
-            "name": "メイン画面が正常に表示される",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:143"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 44348719
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "かつ",
-            "line": 26,
-            "name": "カレンダーが正常にレンダリングされる",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:148"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 17057942
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 30555037
-            }
-          }
-        ],
-        "tags": [
-          {
-            "name": "@REQ-UC001",
-            "line": 3
-          },
-          {
-            "name": "@e2e",
-            "line": 3
-          },
-          {
-            "name": "@smoke",
-            "line": 3
-          }
-        ],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "req-uc001-システム起動;各種ブラウザーでメイン画面が正常に表示される",
-        "keyword": "シナリオアウトライン",
-        "line": 32,
-        "name": "各種ブラウザーでメイン画面が正常に表示される",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 175445609
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 7,
-            "name": "システムが正常に稼働している",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:47"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 22712901
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 23,
-            "name": "ユーザーが Edge を起動している",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:68"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 989733
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "もし",
-            "line": 24,
-            "name": "システムURLにアクセスする",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:96"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 594804316
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "ならば",
-            "line": 25,
-            "name": "メイン画面が正常に表示される",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:143"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 48055871
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "かつ",
-            "line": 26,
-            "name": "カレンダーが正常にレンダリングされる",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:148"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 12330568
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 51919583
-            }
-          }
-        ],
-        "tags": [
-          {
-            "name": "@REQ-UC001",
-            "line": 3
-          },
-          {
-            "name": "@e2e",
-            "line": 3
-          },
-          {
-            "name": "@smoke",
-            "line": 3
-          }
-        ],
-        "type": "scenario"
-      }
-    ],
-    "id": "req-uc001-システム起動",
-    "line": 4,
-    "keyword": "機能",
-    "name": "REQ-UC001 システム起動",
-    "tags": [
-      {
-        "name": "@REQ-UC001",
-        "line": 3
-      },
-      {
-        "name": "@e2e",
-        "line": 3
-      },
-      {
-        "name": "@smoke",
-        "line": 3
-      }
-    ],
-    "uri": "features/REQ-UC001-システム起動.feature"
-  },
-  {
-    "description": "",
-    "elements": [
-      {
-        "description": "",
-        "id": "req-uc002-カレンダー操作;従業員がカレンダーから日付を選択する",
+        "id": "req-uc004-休暇登録;従業員が病欠を登録する",
         "keyword": "シナリオ",
         "line": 10,
-        "name": "従業員がカレンダーから日付を選択する",
+        "name": "従業員が病欠を登録する",
         "steps": [
           {
             "keyword": "Before",
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 92131173
+              "duration": 460159288
             }
           },
           {
@@ -589,7 +27,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 561872237
+              "duration": 703935690
             }
           },
           {
@@ -602,321 +40,242 @@
             },
             "result": {
               "status": "passed",
-              "duration": 51738992
+              "duration": 99105670
             }
           },
           {
             "arguments": [],
             "keyword": "前提",
             "line": 11,
-            "name": "カレンダーが表示されている",
+            "name": "従業員が日付 \"2025-01-15\" を選択している",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:80"
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:52"
             },
             "result": {
               "status": "passed",
-              "duration": 15888927
+              "duration": 1029231086
             }
           },
           {
             "arguments": [],
             "keyword": "もし",
             "line": 12,
-            "name": "従業員が任意の日付を選択する",
+            "name": "従業員が休暇種別 \"Sick Leave\" を選択する",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:106"
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:100"
             },
             "result": {
               "status": "passed",
-              "duration": 100107519
+              "duration": 1941497409
             }
           },
           {
             "arguments": [],
-            "keyword": "ならば",
+            "keyword": "かつ",
             "line": 13,
-            "name": "選択した日付がハイライトされる",
+            "name": "従業員がメモ \"風邪のため休暇\" を入力する",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:142"
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:105"
             },
             "result": {
               "status": "passed",
-              "duration": 6800600
+              "duration": 19104196
             }
           },
           {
             "arguments": [],
             "keyword": "かつ",
             "line": 14,
-            "name": "選択日付に応じた操作オプションが表示される",
+            "name": "従業員が保存ボタンをクリックする",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:151"
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:90"
             },
             "result": {
               "status": "passed",
-              "duration": 13595274
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 29050611
-            }
-          }
-        ],
-        "tags": [
-          {
-            "name": "@REQ-UC002",
-            "line": 3
-          },
-          {
-            "name": "@e2e",
-            "line": 3
-          },
-          {
-            "name": "@calendar",
-            "line": 3
-          }
-        ],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "req-uc002-カレンダー操作;カレンダーで月を切り替える",
-        "keyword": "シナリオ",
-        "line": 16,
-        "name": "カレンダーで月を切り替える",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 96545342
+              "duration": 45254684
             }
           },
           {
             "arguments": [],
-            "keyword": "前提",
-            "line": 7,
-            "name": "従業員がシステムにアクセスしている",
+            "keyword": "ならば",
+            "line": 15,
+            "name": "休暇情報が正常に保存される",
             "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:113"
             },
             "result": {
               "status": "passed",
-              "duration": 565409845
+              "duration": 884861646
             }
           },
           {
             "arguments": [],
             "keyword": "かつ",
-            "line": 8,
-            "name": "メイン画面が表示されている",
+            "line": 16,
+            "name": "保存成功メッセージが表示される",
             "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:132"
             },
             "result": {
               "status": "passed",
-              "duration": 59943851
+              "duration": 5380079
             }
           },
           {
             "arguments": [],
-            "keyword": "前提",
+            "keyword": "かつ",
             "line": 17,
-            "name": "カレンダーが表示されている",
+            "name": "勤怠ステータスが \"Sick Leave\" に設定される",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:80"
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:118"
             },
             "result": {
               "status": "passed",
-              "duration": 18204200
+              "duration": 71410842
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 69505036
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC004",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@leave",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc004-休暇登録;従業員が各種休暇を登録する",
+        "keyword": "シナリオアウトライン",
+        "line": 29,
+        "name": "従業員が各種休暇を登録する",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 99478349
             }
           },
           {
             "arguments": [],
-            "keyword": "もし",
-            "line": 18,
-            "name": "従業員が次月ボタンをクリックする",
+            "keyword": "前提",
+            "line": 7,
+            "name": "従業員がシステムにアクセスしている",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:119"
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
             },
             "result": {
               "status": "passed",
-              "duration": 146005384
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "ならば",
-            "line": 19,
-            "name": "カレンダーが次月に切り替わる",
-            "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:165"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 10265757
+              "duration": 591121236
             }
           },
           {
             "arguments": [],
             "keyword": "かつ",
+            "line": 8,
+            "name": "メイン画面が表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 26207671
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
             "line": 20,
-            "name": "次月の日付が表示される",
+            "name": "従業員が日付 \"2025-01-15\" を選択している",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:186"
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:52"
             },
             "result": {
               "status": "passed",
-              "duration": 17692892
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 80081780
-            }
-          }
-        ],
-        "tags": [
-          {
-            "name": "@REQ-UC002",
-            "line": 3
-          },
-          {
-            "name": "@e2e",
-            "line": 3
-          },
-          {
-            "name": "@calendar",
-            "line": 3
-          }
-        ],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "req-uc002-カレンダー操作;カレンダーで異なる日付を選択する",
-        "keyword": "シナリオ",
-        "line": 22,
-        "name": "カレンダーで異なる日付を選択する",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 167539557
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 7,
-            "name": "従業員がシステムにアクセスしている",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 571044094
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "かつ",
-            "line": 8,
-            "name": "メイン画面が表示されている",
-            "match": {
-              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 56086468
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "前提",
-            "line": 23,
-            "name": "カレンダーが表示されている",
-            "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:80"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 19884841
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "かつ",
-            "line": 24,
-            "name": "日付 \"2025-01-15\" が選択されている",
-            "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:95"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 1839795308
+              "duration": 790670561
             }
           },
           {
             "arguments": [],
             "keyword": "もし",
-            "line": 25,
-            "name": "従業員が日付 \"2025-01-20\" を選択する",
+            "line": 21,
+            "name": "従業員が休暇種別 \"Sick Leave\" を選択する",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:132"
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:100"
             },
             "result": {
               "status": "passed",
-              "duration": 74155180
+              "duration": 186003979
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 22,
+            "name": "従業員がメモ \"風邪のため休暇\" を入力する",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:105"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 9457652
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 23,
+            "name": "従業員が保存ボタンをクリックする",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:90"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 43285044
             }
           },
           {
             "arguments": [],
             "keyword": "ならば",
-            "line": 26,
-            "name": "日付 \"2025-01-20\" がハイライトされる",
+            "line": 24,
+            "name": "休暇情報が正常に保存される",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:198"
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:113"
             },
             "result": {
               "status": "passed",
-              "duration": 11685748
+              "duration": 112418437
             }
           },
           {
             "arguments": [],
             "keyword": "かつ",
-            "line": 27,
-            "name": "以前選択していた日付 \"2025-01-15\" のハイライトが解除される",
+            "line": 25,
+            "name": "勤怠ステータスが \"Sick Leave\" に設定される",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:204"
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:118"
             },
             "result": {
               "status": "passed",
-              "duration": 12923555
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "かつ",
-            "line": 28,
-            "name": "操作オプションが日付 \"2025-01-20\" に対応した内容に更新される",
-            "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:210"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 20603900
+              "duration": 18665075
             }
           },
           {
@@ -924,13 +283,13 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 81810746
+              "duration": 53266541
             }
           }
         ],
         "tags": [
           {
-            "name": "@REQ-UC002",
+            "name": "@REQ-UC004",
             "line": 3
           },
           {
@@ -938,7 +297,7 @@
             "line": 3
           },
           {
-            "name": "@calendar",
+            "name": "@leave",
             "line": 3
           }
         ],
@@ -946,17 +305,17 @@
       },
       {
         "description": "",
-        "id": "req-uc002-カレンダー操作;カレンダーで今日の日付を確認する",
-        "keyword": "シナリオ",
+        "id": "req-uc004-休暇登録;従業員が各種休暇を登録する",
+        "keyword": "シナリオアウトライン",
         "line": 30,
-        "name": "カレンダーで今日の日付を確認する",
+        "name": "従業員が各種休暇を登録する",
         "steps": [
           {
             "keyword": "Before",
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 181849109
+              "duration": 97677622
             }
           },
           {
@@ -969,7 +328,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 615595568
+              "duration": 577427829
             }
           },
           {
@@ -982,46 +341,85 @@
             },
             "result": {
               "status": "passed",
-              "duration": 46193475
+              "duration": 24102898
             }
           },
           {
             "arguments": [],
             "keyword": "前提",
-            "line": 31,
-            "name": "カレンダーが表示されている",
+            "line": 20,
+            "name": "従業員が日付 \"2025-01-15\" を選択している",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:80"
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:52"
             },
             "result": {
               "status": "passed",
-              "duration": 11945877
+              "duration": 750164464
             }
           },
           {
             "arguments": [],
-            "keyword": "ならば",
-            "line": 32,
-            "name": "今日の日付が特別なマーキングで表示される",
+            "keyword": "もし",
+            "line": 21,
+            "name": "従業員が休暇種別 \"Personal Leave\" を選択する",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:221"
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:100"
             },
             "result": {
               "status": "passed",
-              "duration": 9091037
+              "duration": 96704748
             }
           },
           {
             "arguments": [],
             "keyword": "かつ",
-            "line": 33,
-            "name": "今日の日付を簡単に識別できる",
+            "line": 22,
+            "name": "従業員がメモ \"私用のため休暇\" を入力する",
             "match": {
-              "location": "features/step_definitions/req-uc002-calendar-operation.steps.ts:231"
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:105"
             },
             "result": {
               "status": "passed",
-              "duration": 31894745
+              "duration": 15656107
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 23,
+            "name": "従業員が保存ボタンをクリックする",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:90"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51385129
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 24,
+            "name": "休暇情報が正常に保存される",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:113"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 116772169
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 25,
+            "name": "勤怠ステータスが \"Personal Leave\" に設定される",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:118"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 16709258
             }
           },
           {
@@ -1029,13 +427,13 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 43523018
+              "duration": 31917220
             }
           }
         ],
         "tags": [
           {
-            "name": "@REQ-UC002",
+            "name": "@REQ-UC004",
             "line": 3
           },
           {
@@ -1043,20 +441,753 @@
             "line": 3
           },
           {
-            "name": "@calendar",
+            "name": "@leave",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc004-休暇登録;従業員が各種休暇を登録する",
+        "keyword": "シナリオアウトライン",
+        "line": 31,
+        "name": "従業員が各種休暇を登録する",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 105285678
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "従業員がシステムにアクセスしている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 587030760
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 8,
+            "name": "メイン画面が表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 20476393
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 20,
+            "name": "従業員が日付 \"2025-01-15\" を選択している",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:52"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 790228460
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 21,
+            "name": "従業員が休暇種別 \"Business Trip\" を選択する",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:100"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 194792849
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 22,
+            "name": "従業員がメモ \"出張のため不在\" を入力する",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:105"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 16943241
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 23,
+            "name": "従業員が保存ボタンをクリックする",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:90"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 50068289
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 24,
+            "name": "休暇情報が正常に保存される",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:113"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 114692322
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 25,
+            "name": "勤怠ステータスが \"Business Trip\" に設定される",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:118"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 13758460
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 39182477
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC004",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@leave",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc004-休暇登録;従業員が既存の休暇レコードを更新する",
+        "keyword": "シナリオ",
+        "line": 33,
+        "name": "従業員が既存の休暇レコードを更新する",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 93693261
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "従業員がシステムにアクセスしている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 576362303
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 8,
+            "name": "メイン画面が表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 29487595
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 34,
+            "name": "従業員 \"EMP001\" が日付 \"2025-01-15\" に \"Sick Leave\" を登録済みである",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:84"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 45533505
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 35,
+            "name": "従業員が日付 \"2025-01-15\" を選択している",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:52"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 821018812
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 36,
+            "name": "従業員が休暇種別 \"Personal Leave\" を選択する",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:100"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 106832986
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 37,
+            "name": "従業員がメモ \"私用に変更\" を入力する",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:105"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 11789804
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 38,
+            "name": "従業員が保存ボタンをクリックする",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:90"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 45499906
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 39,
+            "name": "既存の休暇レコードが更新される",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:123"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 127301666
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 40,
+            "name": "勤怠ステータスが \"Personal Leave\" に設定される",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:118"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 12065533
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 45987869
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC004",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@leave",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc004-休暇登録;従業員が休暇レコードを削除する",
+        "keyword": "シナリオ",
+        "line": 42,
+        "name": "従業員が休暇レコードを削除する",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 97450089
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "従業員がシステムにアクセスしている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 576126107
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 8,
+            "name": "メイン画面が表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 23784245
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 43,
+            "name": "従業員 \"EMP001\" が日付 \"2025-01-15\" に休暇を登録済みである",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:92"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 23633445
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 44,
+            "name": "従業員が日付 \"2025-01-15\" を選択している",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:52"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 815887083
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 45,
+            "name": "従業員が削除ボタンをクリックする",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:135"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 110021888
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 46,
+            "name": "従業員が削除確認ダイアログで確認する",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:140"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 48565271
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 47,
+            "name": "休暇レコードが削除される",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:145"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 123938271
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 48,
+            "name": "削除成功メッセージが表示される",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:156"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7156681
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 52989767
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC004",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@leave",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc004-休暇登録;メモなしで休暇を登録する",
+        "keyword": "シナリオ",
+        "line": 50,
+        "name": "メモなしで休暇を登録する",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 115685685
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "従業員がシステムにアクセスしている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 598191762
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 8,
+            "name": "メイン画面が表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 28359350
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 51,
+            "name": "従業員が日付 \"2025-01-15\" を選択している",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:52"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 848695062
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 52,
+            "name": "従業員が休暇種別 \"Sick Leave\" を選択する",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:100"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 92902393
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 53,
+            "name": "従業員がメモを入力しない",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:109"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 16456420
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 54,
+            "name": "従業員が保存ボタンをクリックする",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:90"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 47847176
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 55,
+            "name": "休暇情報が正常に保存される",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:113"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 113871954
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 56,
+            "name": "メモが空の状態で保存される",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:161"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 16042362
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 35834061
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC004",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@leave",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "req-uc004-休暇登録;未来日付の休暇を登録する",
+        "keyword": "シナリオ",
+        "line": 58,
+        "name": "未来日付の休暇を登録する",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 130370578
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 7,
+            "name": "従業員がシステムにアクセスしている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 593615798
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 8,
+            "name": "メイン画面が表示されている",
+            "match": {
+              "location": "features/step_definitions/req-uc001-system-startup.steps.ts:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 22118888
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "前提",
+            "line": 59,
+            "name": "従業員が未来の日付を選択している",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:56"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 49031355
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "もし",
+            "line": 60,
+            "name": "従業員が休暇種別 \"Personal Leave\" を選択する",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:100"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 83792313
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 61,
+            "name": "従業員がメモ \"予定されている私用\" を入力する",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:105"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 16565811
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 62,
+            "name": "従業員が保存ボタンをクリックする",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:90"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 36838190
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "ならば",
+            "line": 63,
+            "name": "休暇情報が正常に保存される",
+            "match": {
+              "location": "features/step_definitions/req-uc004-leave-registration.steps.ts:113"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 112136872
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "かつ",
+            "line": 64,
+            "name": "保存成功メッセージが表示される",
+            "match": {
+              "location": "features/step_definitions/req-uc003-work-time-input.steps.ts:132"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4123096
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 45951821
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@REQ-UC004",
+            "line": 3
+          },
+          {
+            "name": "@e2e",
+            "line": 3
+          },
+          {
+            "name": "@leave",
             "line": 3
           }
         ],
         "type": "scenario"
       }
     ],
-    "id": "req-uc002-カレンダー操作",
+    "id": "req-uc004-休暇登録",
     "line": 4,
     "keyword": "機能",
-    "name": "REQ-UC002 カレンダー操作",
+    "name": "REQ-UC004 休暇登録",
     "tags": [
       {
-        "name": "@REQ-UC002",
+        "name": "@REQ-UC004",
         "line": 3
       },
       {
@@ -1064,10 +1195,10 @@
         "line": 3
       },
       {
-        "name": "@calendar",
+        "name": "@leave",
         "line": 3
       }
     ],
-    "uri": "features/REQ-UC002-カレンダー操作.feature"
+    "uri": "features/REQ-UC004-休暇登録.feature"
   }
 ]

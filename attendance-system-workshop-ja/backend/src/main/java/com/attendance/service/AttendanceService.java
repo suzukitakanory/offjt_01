@@ -30,7 +30,10 @@ public class AttendanceService {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     private static final Set<String> ALLOWED_STATUSES =
-            Set.of("WORK", "PAID_LEAVE", "SICK_LEAVE", "UNPAID_LEAVE");
+            Set.of("WORK", "PAID_LEAVE", "SICK_LEAVE", "UNPAID_LEAVE",
+                    "PERSONAL_LEAVE", "BUSINESS_TRIP");
+    private static final Set<String> UC004_LEAVE_STATUSES =
+            Set.of("SICK_LEAVE", "PERSONAL_LEAVE", "BUSINESS_TRIP");
 
     private final AttendanceRecordRepository attendanceRecordRepository;
 
@@ -50,6 +53,13 @@ public class AttendanceService {
                     status, "定義された勤怠ステータスを指定してください");
         }
 
+        if (!"WORK".equals(status)
+                && (request.getClockInTime() != null || request.getClockOutTime() != null)) {
+            throw validationError("ERR03007", "休暇の場合、出退勤時刻は指定できません",
+                    "clockInTime", request.getClockInTime(),
+                    "休暇レコードの出退勤時刻はnullである必要があります");
+        }
+
         LocalTime clockInTime = parseTime(request.getClockInTime(), "clockInTime");
         LocalTime clockOutTime = parseTime(request.getClockOutTime(), "clockOutTime");
         if ("WORK".equals(status) && (clockInTime == null || clockOutTime == null)) {
@@ -61,9 +71,15 @@ public class AttendanceService {
                     "clockInTime", request.getClockInTime(), "退勤時刻より前である必要があります");
         }
 
-        AttendanceRecord record = attendanceRecordRepository
-                .findByEmployeeIdAndAttendanceDate(employeeId, attendanceDate)
-                .orElseGet(AttendanceRecord::new);
+        Optional<AttendanceRecord> existingRecord = attendanceRecordRepository
+                .findByEmployeeIdAndAttendanceDate(employeeId, attendanceDate);
+        if (UC004_LEAVE_STATUSES.contains(status)
+                && existingRecord.isPresent()
+                && !UC004_LEAVE_STATUSES.contains(existingRecord.get().getStatus())) {
+            throw conflictError("status", "UC004対象の休暇ステータスではありません");
+        }
+
+        AttendanceRecord record = existingRecord.orElseGet(AttendanceRecord::new);
         record.setEmployeeId(employeeId);
         record.setAttendanceDate(attendanceDate);
         record.setClockInTime(clockInTime);
@@ -71,6 +87,26 @@ public class AttendanceService {
         record.setStatus(status);
         record.setNotes(request.getNotes());
         return toResponse(attendanceRecordRepository.save(record));
+    }
+
+    /**
+     * 指定日のUC004対象休暇レコードを削除する
+     */
+    public void deleteLeaveByDate(String employeeId, String date) {
+        String validatedEmployeeId = validateEmployeeId(employeeId);
+        LocalDate attendanceDate = parseAttendanceDate(date);
+        AttendanceRecord record = attendanceRecordRepository
+                .findByEmployeeIdAndAttendanceDate(validatedEmployeeId, attendanceDate)
+                .orElseThrow(() -> new AttendanceApiException(
+                        HttpStatus.NOT_FOUND,
+                        "ERR02002",
+                        "指定された日付の休暇レコードが見つかりません",
+                        Map.of("field", "attendanceDate")));
+
+        if (!UC004_LEAVE_STATUSES.contains(record.getStatus())) {
+            throw conflictError("status", "UC004対象の休暇ステータスではありません");
+        }
+        attendanceRecordRepository.delete(record);
     }
 
     /**
@@ -134,6 +170,14 @@ public class AttendanceService {
         }
         details.put("reason", reason);
         return new AttendanceApiException(HttpStatus.BAD_REQUEST, code, message, details);
+    }
+
+    private AttendanceApiException conflictError(String field, String reason) {
+        return new AttendanceApiException(
+                HttpStatus.CONFLICT,
+                "ERR02001",
+                "指定日には休暇登録の対象外となる勤怠レコードが存在します",
+                Map.of("field", field, "reason", reason));
     }
 
     private AttendanceResponse toResponse(AttendanceRecord record) {

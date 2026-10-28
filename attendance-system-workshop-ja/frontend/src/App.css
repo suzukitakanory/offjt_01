@@ -256,3 +256,76 @@
   justify-content: flex-end;
   margin-top: 0.75rem;
 }
+
+.leave-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.leave-modal {
+  width: min(100%, 32rem);
+  padding: 1.5rem;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.leave-modal-header,
+.leave-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.leave-modal-header h2 {
+  margin: 0;
+}
+
+.leave-modal form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.leave-modal select,
+.leave-modal textarea {
+  padding: 0.6rem;
+  font: inherit;
+}
+
+.leave-modal textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+.leave-form-actions {
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+.leave-confirmation-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.leave-confirmation {
+  width: min(100%, 24rem);
+  padding: 1.5rem;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.leave-confirmation h3 {
+  margin-top: 0;
+}

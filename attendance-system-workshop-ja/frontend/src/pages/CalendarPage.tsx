@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Calendar from '../components/Calendar'
+import LeaveForm from '../components/LeaveForm'
 import WorkTimeForm from '../components/WorkTimeForm'
 
 const formatDateKey = (date: Date): string => {
@@ -17,6 +18,7 @@ const formatDateKey = (date: Date): string => {
 const CalendarPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isWorkTimeFormOpen, setIsWorkTimeFormOpen] = useState(false)
+  const [isLeaveFormOpen, setIsLeaveFormOpen] = useState(false)
   const [notice, setNotice] = useState('')
 
   // 日付選択時のハンドラー (REQ-UC002)
@@ -46,19 +48,24 @@ const CalendarPage: React.FC = () => {
               <button 
                 className="btn-work-time"
                 data-testid="btn-work-time"
-                onClick={() => setIsWorkTimeFormOpen(true)}
+                onClick={() => {
+                  setIsLeaveFormOpen(false)
+                  setIsWorkTimeFormOpen(true)
+                }}
               >
                 勤務時間入力
               </button>
               <button 
                 className="btn-leave"
                 data-testid="btn-leave"
-                disabled
+                onClick={() => {
+                  setIsWorkTimeFormOpen(false)
+                  setIsLeaveFormOpen(true)
+                }}
               >
                 休暇登録
               </button>
             </div>
-            <p className="info-text">休暇登録機能は今後の要件で実装されます</p>
           </div>
         )}
         {notice && <p role="status" data-testid="save-success">{notice}</p>}
@@ -70,6 +77,17 @@ const CalendarPage: React.FC = () => {
             onSaved={(message) => {
               setNotice(message)
               setIsWorkTimeFormOpen(false)
+            }}
+          />
+        )}
+        {isLeaveFormOpen && selectedDate && (
+          <LeaveForm
+            key={formatDateKey(selectedDate)}
+            attendanceDate={selectedDate}
+            onClose={() => setIsLeaveFormOpen(false)}
+            onSaved={(message) => {
+              setNotice(message)
+              setIsLeaveFormOpen(false)
             }}
           />
         )}
