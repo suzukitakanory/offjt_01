@@ -12,6 +12,7 @@
 | ISS-004  | 休暇登録済みの日に勤務時間を保存すると休暇情報が上書きされる | 🔴 Open     | High     | Bug           | UC003, UC004      |
 | ISS-005  | ダイアログでEscapeキー操作とフォーカス管理が不足している   | 🔴 Open     | Medium   | Enhancement   | UC003, UC004      |
 | ISS-006  | 従業員別の勤怠一覧APIが常に空の結果を返す                   | 🔴 Open     | Medium   | Bug           | UC002, UC003      |
+| ISS-007  | カレンダーに祝日が表示されない                             | 🔴 Open     | Medium   | Feature Request | UC002             |
 
 ## issueステータス定義
 
