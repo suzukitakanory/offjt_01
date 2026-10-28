@@ -13,6 +13,8 @@
 | ISS-005  | ダイアログでEscapeキー操作とフォーカス管理が不足している   | 🔴 Open     | Medium   | Enhancement   | UC003, UC004      |
 | ISS-006  | 従業員別の勤怠一覧APIが常に空の結果を返す                   | 🔴 Open     | Medium   | Bug           | UC002, UC003      |
 | ISS-007  | カレンダーに祝日が表示されない                             | 🔴 Open     | Medium   | Feature Request | UC002             |
+| ISS-008  | カレンダーで年月を直接選択できない                           | 🔴 Open     | Medium   | Enhancement   | UC002             |
+| ISS-009  | 画面上に現在時刻がリアルタイム表示されない                   | 🔴 Open     | Medium   | Enhancement   | UC002             |
 
 ## issueステータス定義
 
