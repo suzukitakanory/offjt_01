@@ -15,6 +15,7 @@
 | ISS-007  | カレンダーに祝日が表示されない                             | 🔴 Open     | Medium   | Feature Request | UC002             |
 | ISS-008  | カレンダーで年月を直接選択できない                           | 🔵 Closed | Medium   | Enhancement   | UC002             |
 | ISS-009  | 画面上に現在時刻がリアルタイム表示されない                   | 🔴 Open     | Medium   | Enhancement   | UC002             |
+| ISS-010  | SCR-003 のダイアログ画面外のクリックで画面が閉じない       | 🔴 Open     | Low      | Enhancement   | UC004             |
 
 ## issueステータス定義
 
