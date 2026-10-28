@@ -56,6 +56,7 @@
 * **A2: 出勤時刻が退勤時刻以降** — 手順6で `ERR03001`（「出勤時刻は退勤時刻より前である必要があります」）を表示し、保存APIを呼び出さない。勤怠情報は保存しない。
 * **A3: API側のバリデーションエラー** — 手順8で勤怠APIが `400` と `ErrorResponse` を返す。フロントエンドはレスポンスのメッセージを表示し、ダイアログを維持する。
 * **A4: 未来日付を選択** — 日付を理由とするエラーにはせず、基本フローと同様に登録または更新する。
+* **A5: ダイアログ外の背景をクリック** — ダイアログ内部ではない背景領域をクリックした場合、保存せずダイアログを閉じてSCR-001に戻る。ダイアログ内部のクリックでは閉じない。
 
 #### シーケンス図
 
@@ -81,22 +82,27 @@ sequenceDiagram
         Form-->>User: 空の入力欄を表示
     end
 
-    User->>Form: 出勤・退勤時刻を入力して保存
-    Form->>Form: HH:MM形式と時刻の前後関係を検証
-    alt 入力エラー
-        Form-->>User: エラーメッセージを表示（保存しない）
-    else 入力有効
-        Form->>API: POST /api/attendance（従業員ID・日付・時刻HH:MM・status=WORK）
-        API->>API: 入力値を検証
-        alt API側のバリデーションエラー
-            API-->>Form: 400 Bad Request（エラー詳細）
-            Form-->>User: エラーメッセージを表示
+    alt ダイアログ外の背景をクリック
+        User->>Form: 背景領域をクリック
+        Form-->>Main: 保存せずダイアログを閉じる
+    else 入力を続ける
+        User->>Form: 出勤・退勤時刻を入力して保存
+        Form->>Form: HH:MM形式と時刻の前後関係を検証
+        alt 入力エラー
+            Form-->>User: エラーメッセージを表示（保存しない）
         else 入力有効
-            API->>DB: トランザクション内で勤怠レコードを作成または更新
-            DB-->>API: 保存完了
-            API-->>Form: 200 OK
-            Form-->>User: SUCCESS02001（勤怠情報が正常に保存されました）
-            Form-->>Main: ダイアログを閉じる
+            Form->>API: POST /api/attendance（従業員ID・日付・時刻HH:MM・status=WORK）
+            API->>API: 入力値を検証
+            alt API側のバリデーションエラー
+                API-->>Form: 400 Bad Request（エラー詳細）
+                Form-->>User: エラーメッセージを表示
+            else 入力有効
+                API->>DB: トランザクション内で勤怠レコードを作成または更新
+                DB-->>API: 保存完了
+                API-->>Form: 200 OK
+                Form-->>User: SUCCESS02001（勤怠情報が正常に保存されました）
+                Form-->>Main: ダイアログを閉じる
+            end
         end
     end
 ```
