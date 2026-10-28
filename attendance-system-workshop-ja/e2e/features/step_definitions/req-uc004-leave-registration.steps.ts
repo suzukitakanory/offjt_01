@@ -9,6 +9,38 @@ const LEAVE_STATUSES = {
   'Business Trip': 'BUSINESS_TRIP',
 } as const
 
+const formatDateKey = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = `${date.getMonth() + 1}`.padStart(2, '0')
+  const day = `${date.getDate()}`.padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const selectDate = async (world: World, date: string): Promise<void> => {
+  const targetDate = new Date(`${date}T00:00:00`)
+  const title = await world.page.locator('.calendar-title').textContent()
+  const match = title?.match(/(\d{4})年\s*(\d{1,2})月/)
+  if (!match) {
+    throw new Error(`カレンダーの年月を読み取れません: ${title ?? ''}`)
+  }
+
+  const displayedYear = Number(match[1])
+  const displayedMonth = Number(match[2])
+  const monthDifference =
+    (targetDate.getFullYear() - displayedYear) * 12 +
+    (targetDate.getMonth() + 1 - displayedMonth)
+  const navigationButton = world.page.locator('.calendar-nav-button').nth(monthDifference < 0 ? 0 : 1)
+
+  for (let month = 0; month < Math.abs(monthDifference); month += 1) {
+    await navigationButton.click()
+  }
+
+  const dateCell = world.page.locator(`.calendar-day[data-date="${date}"]`)
+  await expect(dateCell).toBeVisible()
+  await dateCell.click()
+  world.context.selectedDate = date
+}
+
 interface AttendanceRecord {
   id: number
   status: string
@@ -96,6 +128,12 @@ Given(
     this.context.leaveRecordId = record.id
   }
 )
+
+Given('従業員が休暇登録用の未来の日付を選択している', async function (this: World) {
+  const futureDate = new Date()
+  futureDate.setDate(futureDate.getDate() + 7)
+  await selectDate(this, formatDateKey(futureDate))
+})
 
 When('従業員が休暇種別 {string} を選択する', async function (this: World, leaveLabel: string) {
   await openLeaveDialog(this)
