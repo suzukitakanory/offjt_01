@@ -1,11 +1,13 @@
 import React, { useState, useMemo, useRef } from 'react'
+import { getHolidayName, isWithinHolidayDataRange } from '../data/holidayData'
 
 /**
  * カレンダーコンポーネント
  * 関連要件: REQ-UC001 - システム起動, REQ-UC002 - カレンダー操作
  * 関連画面項目: SCR001-2 (年月表示), SCR001-3 (前月ボタン), SCR001-4 (次月ボタン),
  *              SCR001-5 (曜日ヘッダー), SCR001-6 (日付セル), SCR001-7 (カレンダーグリッド),
- *              SCR001-8 (年月選択モーダル)
+ *              SCR001-8 (年月選択モーダル), SCR001-9 (祝日表示),
+ *              SCR001-10 (祝日データ対象外表示)
  */
 
 interface CalendarProps {
@@ -59,6 +61,9 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
     }
     return days
   }, [year, month])
+  const hasDatesOutsideHolidayData = calendarDays.some(
+    (date) => !isWithinHolidayDataRange(formatDateKey(date)),
+  )
 
   // 前月へ移動 (REQ-UC002: SEQ-UC002-002)
   const goToPreviousMonth = () => {
@@ -125,6 +130,10 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
       classes.push('sunday')
     } else if (dayOfWeek === 6) {
       classes.push('saturday')
+    }
+
+    if (getHolidayName(dayKey)) {
+      classes.push('holiday')
     }
 
     return classes.join(' ')
@@ -208,6 +217,12 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
         </form>
       </dialog>
 
+      {hasDatesOutsideHolidayData && (
+        <p className="holiday-data-notice" role="status" aria-live="polite">
+          一部の日付は祝日データの対象外です。
+        </p>
+      )}
+
       {/* カレンダーグリッド (SCR001-7) */}
       <div className="calendar-grid">
         {/* 曜日ヘッダー (SCR001-5) */}
@@ -218,25 +233,39 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
         ))}
 
         {/* 日付セル (SCR001-6) */}
-        {calendarDays.map((date, index) => (
-          <div
-            key={`day-${index}`}
-            className={getDayClassName(date)}
-            data-date={formatDateKey(date)}
-            onClick={() => handleDateClick(date)}
-            role="button"
-            tabIndex={0}
-            aria-label={`${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                handleDateClick(date)
-              }
-            }}
-          >
-            {date.getDate()}
-          </div>
-        ))}
+        {calendarDays.map((date, index) => {
+          const dateKey = formatDateKey(date)
+          const holidayName = getHolidayName(dateKey)
+          const dateLabel = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
+
+          return (
+            <div
+              key={`day-${index}`}
+              className={getDayClassName(date)}
+              data-date={dateKey}
+              onClick={() => handleDateClick(date)}
+              role="button"
+              tabIndex={0}
+              aria-label={holidayName ? `${dateLabel}、祝日：${holidayName}` : dateLabel}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleDateClick(date)
+                }
+              }}
+            >
+              <span className="calendar-day-number">{date.getDate()}</span>
+              {holidayName && (
+                <span className="calendar-holiday-name">
+                  <span className="calendar-holiday-marker" aria-hidden="true">
+                    祝
+                  </span>
+                  {holidayName}
+                </span>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

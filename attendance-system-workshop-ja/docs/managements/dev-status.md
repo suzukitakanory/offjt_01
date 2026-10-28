@@ -19,6 +19,7 @@
 - `docs/design/actors.md` - アクター一覧
 - `docs/design/deployment-diagram.md` - デプロイメント図
 - `docs/design/screen-design.md` - 画面設計書（ハイレベル部分）
+- `docs/design/holiday-data-specification.md` - 内閣府CSVの同梱・更新・収録期間の扱い
 - `docs/design/database-table-definitions.md` - テーブル定義書（ハイレベル部分）
 - `docs/design/openapi.yaml` - API設計書（ハイレベル部分）
 - `docs/design/message-definition.md` - メッセージ定義書（構造のみ）

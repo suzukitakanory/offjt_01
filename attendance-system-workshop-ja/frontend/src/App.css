@@ -171,10 +171,13 @@
   transition: background-color 0.2s, border-color 0.2s;
   min-height: 60px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.25rem;
   font-size: 1rem;
   color: #333;
+  line-height: 1.2;
 }
 
 .calendar-day:hover {
@@ -206,10 +209,46 @@
   border-color: #bbdefb;
 }
 
+.calendar-day.holiday:not(.selected):not(.today):not(.other-month) {
+  border-color: #e0a4a4;
+}
+
+.calendar-day.other-month.holiday {
+  color: #a63d3d;
+}
+
+.calendar-day-number {
+  flex: 0 0 auto;
+}
+
+.calendar-holiday-name {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.2rem;
+  min-width: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.calendar-holiday-marker {
+  flex: 0 0 auto;
+}
+
 .calendar-day.selected {
   background-color: #1976d2;
   color: white;
   border-color: #1565c0;
+}
+
+.holiday-data-notice {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #ed6c02;
+  border-radius: 4px;
+  background-color: #fff4e5;
+  color: #663c00;
 }
 
 /* 操作オプションセクション (REQ-UC002) */
