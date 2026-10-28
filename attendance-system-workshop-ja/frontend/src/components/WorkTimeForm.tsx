@@ -102,7 +102,14 @@ const WorkTimeForm: React.FC<WorkTimeFormProps> = ({ attendanceDate, onClose, on
   }
 
   return (
-    <div className="work-time-modal-backdrop">
+    <div
+      className="work-time-modal-backdrop"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose()
+        }
+      }}
+    >
       <section
         className="work-time-modal"
         role="dialog"

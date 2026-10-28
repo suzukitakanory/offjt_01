@@ -79,6 +79,26 @@ When('従業員が勤務時間入力フォームを開く', async function (this
   await expect(this.page.getByTestId('save-attendance')).toBeEnabled()
 })
 
+When('従業員が勤務時間入力ダイアログ内部をクリックする', async function (this: World) {
+  await this.page.getByRole('heading', { name: '勤務時間入力' }).click()
+})
+
+When('従業員がダイアログ外の背景をクリックする', async function (this: World) {
+  await this.page.locator('.work-time-modal-backdrop').click({ position: { x: 4, y: 4 } })
+})
+
+Then('勤務時間入力ダイアログが開いたままである', async function (this: World) {
+  await expect(this.page.getByTestId('work-time-dialog')).toBeVisible()
+})
+
+Then('勤務時間入力ダイアログが閉じる', async function (this: World) {
+  await expect(this.page.getByTestId('work-time-dialog')).toBeHidden()
+})
+
+Then('保存成功メッセージが表示されない', async function (this: World) {
+  await expect(this.page.getByTestId('save-success')).toBeHidden()
+})
+
 When('従業員が出勤時刻 {string} を入力する', async function (this: World, time: string) {
   await this.page.getByTestId('clock-in-time').fill(time)
 })

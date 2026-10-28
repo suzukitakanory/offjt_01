@@ -7,7 +7,7 @@
 | Issue ID | Title                                                      | Status | Priority | Category      | Related Use Cases |
 | -------- | ---------------------------------------------------------- | ------ | -------- | ------------- | ----------------- |
 | ISS-001  | SCR-002 / SCR-003 のポップアップ表現と画面遷移定義の不整合 | 🟢 Resolved | High     | Documentation | UC003, UC004      |
-| ISS-002  | SCR-002 のダイアログ画面外のクリックで画面が閉じない       | 🔴 Open     | Low      | Enhancement   | UC003             |
+| ISS-002  | SCR-002 のダイアログ画面外のクリックで画面が閉じない       | 🟢 Resolved | Low      | Enhancement   | UC003             |
 | ISS-003  | 日付をまたいでもカレンダーの「今日」の表示が更新されない   | 🔴 Open     | Low      | Bug           | UC002             |
 | ISS-004  | 休暇登録済みの日に勤務時間を保存すると休暇情報が上書きされる | 🔴 Open     | High     | Bug           | UC003, UC004      |
 | ISS-005  | ダイアログでEscapeキー操作とフォーカス管理が不足している   | 🔴 Open     | Medium   | Enhancement   | UC003, UC004      |
