@@ -55,10 +55,31 @@
 }
 
 .calendar-title {
+  flex: 1;
   margin: 0;
   font-size: 1.5rem;
   color: #333;
   font-weight: 600;
+  text-align: center;
+}
+
+.calendar-title-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.calendar-title-button:hover {
+  text-decoration: underline;
+}
+
+.calendar-title-button:focus-visible {
+  outline: 2px solid #1976d2;
+  outline-offset: 4px;
+  border-radius: 2px;
 }
 
 .calendar-nav-button {
@@ -77,6 +98,52 @@
 
 .calendar-nav-button:active {
   transform: scale(0.95);
+}
+
+.calendar-month-picker {
+  width: min(24rem, calc(100vw - 2rem));
+  padding: 1.5rem;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.calendar-month-picker::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.calendar-month-picker h2 {
+  margin: 0 0 1rem;
+}
+
+.calendar-month-picker form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.calendar-month-picker-fields {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.calendar-month-picker select {
+  min-width: 0;
+  padding: 0.6rem;
+  font: inherit;
+}
+
+.calendar-month-picker-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.calendar-month-picker-actions button {
+  padding: 0.6rem 1rem;
+  font: inherit;
+  cursor: pointer;
 }
 
 .calendar-grid {

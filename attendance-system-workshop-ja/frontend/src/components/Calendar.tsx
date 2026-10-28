@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useRef } from 'react'
 
 /**
  * カレンダーコンポーネント
  * 関連要件: REQ-UC001 - システム起動, REQ-UC002 - カレンダー操作
  * 関連画面項目: SCR001-2 (年月表示), SCR001-3 (前月ボタン), SCR001-4 (次月ボタン),
- *              SCR001-5 (曜日ヘッダー), SCR001-6 (日付セル), SCR001-7 (カレンダーグリッド)
+ *              SCR001-5 (曜日ヘッダー), SCR001-6 (日付セル), SCR001-7 (カレンダーグリッド),
+ *              SCR001-8 (年月選択モーダル)
  */
 
 interface CalendarProps {
@@ -18,11 +19,18 @@ const formatDateKey = (date: Date): string => {
   return `${year}-${month}-${day}`
 }
 
+const selectableYears = Array.from({ length: 201 }, (_, index) => 1900 + index)
+const selectableMonths = Array.from({ length: 12 }, (_, index) => index + 1)
+
 const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [draftYear, setDraftYear] = useState(currentDate.getFullYear())
+  const [draftMonth, setDraftMonth] = useState(currentDate.getMonth() + 1)
   const todayKey = useMemo(() => formatDateKey(new Date()), [])
   const selectedDateKey = useMemo(() => (selectedDate ? formatDateKey(selectedDate) : null), [selectedDate])
+  const monthPickerRef = useRef<HTMLDialogElement>(null)
+  const monthPickerTriggerRef = useRef<HTMLButtonElement>(null)
 
   // 現在表示中の年月を取得
   const year = currentDate.getFullYear()
@@ -60,6 +68,25 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
   // 次月へ移動 (REQ-UC002: SEQ-UC002-002)
   const goToNextMonth = () => {
     setCurrentDate(new Date(year, month + 1, 1))
+  }
+
+  const openMonthPicker = () => {
+    setDraftYear(year)
+    setDraftMonth(month + 1)
+    const dialog = monthPickerRef.current
+    if (dialog && !dialog.open) {
+      dialog.showModal()
+    }
+  }
+
+  const handleMonthPickerSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setCurrentDate(new Date(draftYear, draftMonth - 1, 1))
+    monthPickerRef.current?.close()
+  }
+
+  const restoreMonthPickerFocus = () => {
+    monthPickerTriggerRef.current?.focus()
   }
 
   // 日付セルクリックハンドラー (REQ-UC002: SEQ-UC002-001, SEQ-UC002-003)
@@ -118,7 +145,16 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
           &lt;
         </button>
         <h2 className="calendar-title">
-          {year}年 {month + 1}月
+          <button
+            ref={monthPickerTriggerRef}
+            className="calendar-title-button"
+            type="button"
+            aria-label="年月を選択"
+            aria-haspopup="dialog"
+            onClick={openMonthPicker}
+          >
+            {year}年 {month + 1}月
+          </button>
         </h2>
         <button
           className="calendar-nav-button"
@@ -128,6 +164,49 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
           &gt;
         </button>
       </div>
+
+      <dialog
+        ref={monthPickerRef}
+        className="calendar-month-picker"
+        aria-labelledby="calendar-month-picker-title"
+        onClose={restoreMonthPickerFocus}
+      >
+        <h2 id="calendar-month-picker-title">年月を選択</h2>
+        <form onSubmit={handleMonthPickerSubmit}>
+          <div className="calendar-month-picker-fields">
+            <label htmlFor="calendar-month-picker-year">年</label>
+            <select
+              id="calendar-month-picker-year"
+              value={draftYear}
+              onChange={(event) => setDraftYear(Number(event.target.value))}
+            >
+              {selectableYears.map((selectableYear) => (
+                <option key={selectableYear} value={selectableYear}>
+                  {selectableYear}年
+                </option>
+              ))}
+            </select>
+            <label htmlFor="calendar-month-picker-month">月</label>
+            <select
+              id="calendar-month-picker-month"
+              value={draftMonth}
+              onChange={(event) => setDraftMonth(Number(event.target.value))}
+            >
+              {selectableMonths.map((selectableMonth) => (
+                <option key={selectableMonth} value={selectableMonth}>
+                  {selectableMonth}月
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="calendar-month-picker-actions">
+            <button type="button" onClick={() => monthPickerRef.current?.close()}>
+              キャンセル
+            </button>
+            <button type="submit">確定</button>
+          </div>
+        </form>
+      </dialog>
 
       {/* カレンダーグリッド (SCR001-7) */}
       <div className="calendar-grid">

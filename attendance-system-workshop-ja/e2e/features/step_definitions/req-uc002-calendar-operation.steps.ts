@@ -11,6 +11,7 @@ import { World } from './world';
  * - SEQ-UC002-001: カレンダー日付選択
  * - SEQ-UC002-002: カレンダー月切り替え
  * - SEQ-UC002-003: カレンダー異なる日付選択
+ * - SEQ-UC002-004: カレンダー年月選択
  */
 
 const formatDateKey = (date: Date): string => {
@@ -216,6 +217,72 @@ Then('操作オプションが日付 {string} に対応した内容に更新さ�
   const dateText = new Date(date);
   const expectedText = `${dateText.getFullYear()}年${dateText.getMonth() + 1}月${dateText.getDate()}日`;
   await expect(actionOptions).toContainText(expectedText);
+});
+
+When('年月選択モーダルを開く', async function (this: World) {
+  this.context.previousMonthTitle = await this.page.locator('.calendar-title').innerText();
+  await this.page.getByRole('button', { name: '年月を選択' }).click();
+  await expect(this.page.getByRole('dialog', { name: '年月を選択' })).toBeVisible();
+});
+
+Then('年月選択モーダルの初期値が現在の表示年月である', async function (this: World) {
+  const title = await this.page.locator('.calendar-title').innerText();
+  const displayedYearMonth = extractYearMonth(title);
+  if (!displayedYearMonth) {
+    throw new Error(`カレンダーの年月を読み取れません: ${title}`);
+  }
+
+  const dialog = this.page.getByRole('dialog', { name: '年月を選択' });
+  await expect(dialog.getByLabel('年')).toHaveValue(String(displayedYearMonth.year));
+  await expect(dialog.getByLabel('月')).toHaveValue(String(displayedYearMonth.month));
+});
+
+When(
+  '従業員が年月選択モーダルで年 {string} 月 {string} を選択して確定する',
+  async function (this: World, year: string, month: string) {
+    const dialog = this.page.getByRole('dialog', { name: '年月を選択' });
+    await dialog.getByLabel('年').selectOption(year);
+    await dialog.getByLabel('月').selectOption(month);
+    await dialog.getByRole('button', { name: '確定' }).click();
+  },
+);
+
+When(
+  '従業員が年月選択モーダルで年 {string} 月 {string} を選択する',
+  async function (this: World, year: string, month: string) {
+    const dialog = this.page.getByRole('dialog', { name: '年月を選択' });
+    await dialog.getByLabel('年').selectOption(year);
+    await dialog.getByLabel('月').selectOption(month);
+  },
+);
+
+When('従業員が年月選択モーダルをキャンセルする', async function (this: World) {
+  await this.page.getByRole('dialog', { name: '年月を選択' }).getByRole('button', { name: 'キャンセル' }).click();
+});
+
+When('従業員がEscapeキーで年月選択モーダルを閉じる', async function (this: World) {
+  await this.page.keyboard.press('Escape');
+});
+
+Then('カレンダーの表示年月が {string} になる', async function (this: World, expectedTitle: string) {
+  await expect(this.page.locator('.calendar-title')).toHaveText(expectedTitle);
+});
+
+Then('表示年月がモーダルを開く前から変わらない', async function (this: World) {
+  const previousTitle = this.context.previousMonthTitle;
+  if (!previousTitle) {
+    throw new Error('モーダルを開く前の表示年月が記録されていません');
+  }
+
+  await expect(this.page.locator('.calendar-title')).toHaveText(previousTitle);
+});
+
+Then('年月選択モーダルが閉じる', async function (this: World) {
+  await expect(this.page.getByRole('dialog', { name: '年月を選択' })).not.toBeVisible();
+});
+
+Then('フォーカスが年月選択ボタンに戻る', async function (this: World) {
+  await expect(this.page.getByRole('button', { name: '年月を選択' })).toBeFocused();
 });
 
 Then('今日の日付が特別なマーキングで表示される', async function (this: World) {
