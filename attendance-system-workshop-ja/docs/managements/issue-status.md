@@ -12,7 +12,7 @@
 | ISS-004  | 休暇登録済みの日に勤務時間を保存すると休暇情報が上書きされる | 🔴 Open     | High     | Bug           | UC003, UC004      |
 | ISS-005  | ダイアログでEscapeキー操作とフォーカス管理が不足している   | 🔴 Open     | Medium   | Enhancement   | UC003, UC004      |
 | ISS-006  | 従業員別の勤怠一覧APIが常に空の結果を返す                   | 🔴 Open     | Medium   | Bug           | UC002, UC003      |
-| ISS-007  | カレンダーに祝日が表示されない                             | 🔴 Open     | Medium   | Feature Request | UC002             |
+| ISS-007  | カレンダーに祝日が表示されない                             | 🟢 Resolved | Medium   | Feature Request | UC002             |
 | ISS-008  | カレンダーで年月を直接選択できない                           | 🔵 Closed | Medium   | Enhancement   | UC002             |
 | ISS-009  | 画面上に現在時刻がリアルタイム表示されない                   | 🔴 Open     | Medium   | Enhancement   | UC002             |
 | ISS-010  | SCR-003 のダイアログ画面外のクリックで画面が閉じない       | 🔴 Open     | Low      | Enhancement   | UC004             |

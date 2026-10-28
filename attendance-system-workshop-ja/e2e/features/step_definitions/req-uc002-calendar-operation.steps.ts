@@ -100,6 +100,22 @@ Given('日付 {string} が選択されている', async function (this: World, d
   await expect(dateCell).toHaveClass(/selected/);
 });
 
+Given('カレンダーの表示月を {string} にする', async function (this: World, yearMonth: string) {
+  const match = /^(\d{4})-(\d{2})$/.exec(yearMonth);
+  if (!match) {
+    throw new Error(`年月はYYYY-MM形式で指定してください: ${yearMonth}`);
+  }
+
+  await this.page.getByRole('button', { name: '年月を選択' }).click();
+  const dialog = this.page.getByRole('dialog', { name: '年月を選択' });
+  await dialog.getByLabel('年').selectOption(match[1]);
+  await dialog.getByLabel('月').selectOption(String(Number(match[2])));
+  await dialog.getByRole('button', { name: '確定' }).click();
+  await expect(this.page.locator('.calendar-title')).toHaveText(
+    `${match[1]}年 ${Number(match[2])}月`,
+  );
+});
+
 // ==============================================
 // 操作 (When)
 // ==============================================
@@ -313,4 +329,27 @@ Then('今日の日付を簡単に識別できる', async function (this: World) 
     expect(backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
     expect(backgroundColor).not.toBe('rgb(255, 255, 255)');
   }
+});
+
+Then('日付 {string} に祝日名 {string} が表示される', async function (this: World, date: string, holidayName: string) {
+  const dateCell = this.page.locator(`.calendar-day[data-date="${date}"]`);
+  const holidayLabel = dateCell.locator('.calendar-holiday-name');
+  await expect(holidayLabel).toContainText(holidayName);
+  await expect(dateCell.locator('.calendar-holiday-marker')).toHaveText('祝');
+  await expect(dateCell).toHaveAttribute('aria-label', new RegExp(`祝日：${holidayName}`));
+});
+
+Then('日付 {string} に祝日名が表示されない', async function (this: World, date: string) {
+  const dateCell = this.page.locator(`.calendar-day[data-date="${date}"]`);
+  await expect(dateCell.locator('.calendar-holiday-name')).toHaveCount(0);
+});
+
+Then('日付 {string} が祝日であることを色以外でも識別できる', async function (this: World, date: string) {
+  const dateCell = this.page.locator(`.calendar-day[data-date="${date}"]`);
+  await expect(dateCell.locator('.calendar-holiday-name')).toBeVisible();
+  await expect(dateCell).toHaveAttribute('aria-label', /祝日：/);
+});
+
+Then('{string} と表示される', async function (this: World, message: string) {
+  await expect(this.page.getByRole('status')).toHaveText(message);
 });
