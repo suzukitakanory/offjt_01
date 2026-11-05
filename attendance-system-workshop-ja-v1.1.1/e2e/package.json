@@ -1,0 +1,17 @@
+{
+  "name": "attendance-system-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "cucumber-js --config cucumber.config.js",
+    "test:smoke": "cucumber-js --config cucumber.config.js --tags @smoke",
+    "test:req-uc001": "cucumber-js --config cucumber.config.js --tags @REQ-UC001"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.0.0",
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^24.10.1",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}

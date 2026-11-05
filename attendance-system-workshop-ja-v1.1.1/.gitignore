@@ -1,0 +1,173 @@
+# Operating System
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# IDE and Editors
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/*.code-snippets
+.idea/
+*.swp
+*.swo
+*~
+.project
+.metadata
+.classpath
+.settings/
+*.sublime-*
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node.js / Frontend
+node_modules/
+.npm
+.eslintcache
+.pnpm-debug.log
+pnpm-lock.yaml.bak
+
+# Build outputs - Frontend
+frontend/dist/
+frontend/build/
+frontend/.vite/
+
+# General build outputs
+target/
+**/target/
+dist/
+**/dist/
+build/
+**/build/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Java / Spring Boot Backend
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/.mvn/wrapper/maven-wrapper.properties
+backend/.mvn/wrapper/MavenWrapperDownloader.java
+backend/mvnw
+backend/mvnw.cmd
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+backend/.gradle/
+backend/build/
+backend/gradle/
+backend/gradlew
+backend/gradlew.bat
+
+# Spring Boot specific
+backend/HELP.md
+backend/.gradle
+backend/build/
+backend/!gradle/wrapper/gradle-wrapper.jar
+backend/!**/src/main/**/build/
+backend/!**/src/test/**/build/
+
+# Testing
+coverage/
+*.lcov
+.nyc_output
+junit.xml
+test-results/
+backend/target/surefire-reports/
+backend/target/failsafe-reports/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# Kubernetes / Helm
+infra/helm/charts/*.tgz
+infra/k8s/secrets/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.temp/
+
+# Package managers
+package-lock.json
+yarn.lock
+
+# Documentation build
+docs/build/
+docs/.docusaurus/
+
+# E2E Testing
+e2e/test-results/
+e2e/playwright-report/
+e2e/blob-report/
+e2e/playwright/.cache/
+
+# Scripts output
+scripts/logs/
+scripts/output/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# System files
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Security
+*.pem
+*.key
+*.crt
+*.p12
+secrets.yml
+secrets.yaml
+
+# Local configuration
+local.properties
+application-local.yml
+application-local.properties
+
+# Formatting / linting configuration (local/auto-generated)
+.prettierrc
+.prettierignore
+.markdownlint.json
+.markdownlintignore
+.lintstagedrc.json
+.husky/
