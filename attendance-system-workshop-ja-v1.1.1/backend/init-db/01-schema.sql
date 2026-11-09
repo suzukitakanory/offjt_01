@@ -7,11 +7,15 @@ CREATE TABLE IF NOT EXISTS attendance_records (
     attendance_date DATE NOT NULL,
     clock_in_time TIME,
     clock_out_time TIME,
-    status VARCHAR(50),
+    status VARCHAR(50) NOT NULL DEFAULT 'WORK',
     notes TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(employee_id, attendance_date)
+    CONSTRAINT uk_attendance_employee_date UNIQUE(employee_id, attendance_date),
+    CONSTRAINT chk_attendance_status
+        CHECK (status IN ('WORK', 'PAID_LEAVE', 'SICK_LEAVE', 'UNPAID_LEAVE')),
+    CONSTRAINT chk_attendance_clock_times
+        CHECK (clock_in_time IS NULL OR clock_out_time IS NULL OR clock_out_time > clock_in_time)
 );
 
 -- インデックス
