@@ -171,3 +171,10 @@ application-local.properties
 .markdownlintignore
 .lintstagedrc.json
 .husky/
+
+# Local AI tooling files (keep the project constitution tracked)
+/.specify/*
+!/.specify/memory/
+/.specify/memory/*
+!/.specify/memory/constitution.md
+/.github/skills/
