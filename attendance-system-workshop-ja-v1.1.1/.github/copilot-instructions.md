@@ -83,3 +83,9 @@ attendance-system-ja/
 - **要件ドキュメント**: [docs/requirements/](../docs/requirements/)
 - **設計ドキュメント**: [docs/design/](../docs/design/)
 - **コーディング指示書**: [.github/instructions/](instructions/)
+
+## 回答・コマンドの言語
+
+- ユーザーへの回答、説明、進捗報告は日本語で行う。
+- コマンドを提示するときは、日本語で用途を説明する。
+- コマンド、コード、API名、ファイル名など、実行や正確性に必要な文字列は翻訳しない。
