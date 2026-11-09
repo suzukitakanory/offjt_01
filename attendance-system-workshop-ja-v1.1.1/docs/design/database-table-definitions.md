@@ -83,7 +83,7 @@ erDiagram
 | 制約名                     | 条件                                                                               | 説明                                   |
 | -------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------- |
 | chk_attendance_status      | status IN ('WORK', 'PAID_LEAVE', 'SICK_LEAVE', 'UNPAID_LEAVE')                     | ステータスは定義された値のみ許可       |
-| chk_attendance_clock_times | clock_out_time IS NULL OR clock_in_time IS NULL OR clock_out_time >= clock_in_time | 退勤時刻は出勤時刻以降である必要がある |
+| chk_attendance_clock_times | clock_out_time IS NULL OR clock_in_time IS NULL OR clock_out_time > clock_in_time | 退勤時刻は出勤時刻より後である必要がある。同刻は不可 |
 
 ##### インデックス (Index)
 
@@ -126,7 +126,7 @@ VALUES ('EMP001', '2024-11-20', NULL, NULL, 'SICK_LEAVE', '風邪のため');
 | --------- | ------------- | -------------------------------------------------------------------------------------- |
 | REQ-UC001 | -             | システム起動時はテーブルにアクセスしない（画面表示のみ）                               |
 | REQ-UC002 | SELECT        | カレンダー操作は現在フロントエンドのみで完結。将来的に勤怠データを取得して表示する予定 |
-| REQ-UC003 | INSERT/UPDATE | 勤務時間入力時にレコードを作成または更新                                               |
+| REQ-UC003 | INSERT/UPDATE/SELECT | 従業員と日付の 1 件を WORK として作成または更新し、特定日を再取得する。未来日は拒否しない |
 | REQ-UC004 | INSERT/UPDATE | 休暇登録時にレコードを作成または更新                                                   |
 
 **REQ-UC002（カレンダー操作）の詳細**:
@@ -155,6 +155,24 @@ WHERE employee_id = 'EMP001'
 ```
 
 これらのクエリは、既存のインデックス（`idx_attendance_employee_date`）により効率的に実行されます。
+
+**REQ-UC003（勤務時間入力）の詳細**:
+
+勤務時間の保存は、`employee_id` と `attendance_date` の一意キーで upsert する。行が無ければ INSERT、あれば UPDATE とし、同じ組み合わせの 2 件目は作らない。
+
+- `status` は `WORK` とする。出勤時刻と退勤時刻は両方必須で、画面入力は `HH:MM`、保存値の秒は `00` とする
+- 出勤時刻は退勤時刻より前であること。同刻と日跨ぎは保存しない。チェック制約 `chk_attendance_clock_times` は `clock_out_time > clock_in_time` とする。どちらかが NULL の休暇行は制約違反にしない
+- `attendance_date` に未来日拒否の制約は置かない
+- 画面に備考欄はない。新規行の `notes` は NULL、更新時は `notes` を変更しない
+- 検証に失敗した入力は行を追加も更新もしない
+- 特定日の再取得は `employee_id` と `attendance_date` の等価検索とする
+
+```sql
+-- 特定日の勤怠を取得（無ければアプリケーションが 404 とする）
+SELECT * FROM attendance_records
+WHERE employee_id = 'EMP001'
+  AND attendance_date = '2025-01-15';
+```
 
 **備考**:
 
