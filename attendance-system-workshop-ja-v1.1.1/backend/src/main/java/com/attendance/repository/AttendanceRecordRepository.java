@@ -15,9 +15,19 @@ import java.util.Optional;
 @Repository
 public interface AttendanceRecordRepository extends JpaRepository<AttendanceRecord, Long> {
 
-    // TODO: REQ-UC002 - 従業員IDでの勤怠レコード一覧取得
+    /** 従業員の勤怠レコードをすべて取得する。 */
     List<AttendanceRecord> findByEmployeeId(String employeeId);
 
-    // TODO: REQ-UC003 - 従業員IDと日付での勤怠レコード取得
+    /** 従業員と勤怠日を指定してレコードを取得する。 */
     Optional<AttendanceRecord> findByEmployeeIdAndAttendanceDate(String employeeId, LocalDate attendanceDate);
+
+    /** 従業員と開始日・終了日（両端を含む）を指定して取得する。 */
+    List<AttendanceRecord> findByEmployeeIdAndAttendanceDateBetween(
+            String employeeId, LocalDate startDate, LocalDate endDate);
+
+    /** 指定した開始日以降の勤怠レコードを取得する。 */
+    List<AttendanceRecord> findByEmployeeIdAndAttendanceDateGreaterThanEqual(String employeeId, LocalDate startDate);
+
+    /** 指定した終了日以前の勤怠レコードを取得する。 */
+    List<AttendanceRecord> findByEmployeeIdAndAttendanceDateLessThanEqual(String employeeId, LocalDate endDate);
 }
