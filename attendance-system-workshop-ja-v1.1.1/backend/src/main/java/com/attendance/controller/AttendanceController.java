@@ -2,7 +2,9 @@ package com.attendance.controller;
 
 import com.attendance.dto.AttendanceRequest;
 import com.attendance.dto.AttendanceResponse;
+import com.attendance.exception.AttendanceApiException;
 import com.attendance.service.AttendanceService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,36 +25,27 @@ public class AttendanceController {
         this.attendanceService = attendanceService;
     }
 
-    /**
-     * 勤怠レコードを登録・更新する
-     * TODO: REQ-UC003, REQ-UC004 - 勤怠レコード登録・更新APIの実装
-     */
     @PostMapping
     public ResponseEntity<AttendanceResponse> saveAttendance(@RequestBody AttendanceRequest request) {
-        // TODO: REQ-UC003, REQ-UC004 - 実装予定
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(attendanceService.saveAttendance(request));
     }
 
-    /**
-     * 特定日の勤怠レコードを取得する
-     * TODO: REQ-UC003 - 特定日勤怠レコード取得APIの実装
-     */
     @GetMapping("/{employeeId}/{date}")
     public ResponseEntity<AttendanceResponse> getAttendanceByDate(
             @PathVariable String employeeId,
             @PathVariable String date) {
-        // TODO: REQ-UC003 - 実装予定
-        return ResponseEntity.ok(null);
+        AttendanceResponse response = attendanceService.getAttendanceByDate(employeeId, date)
+                .orElseThrow(() -> new AttendanceApiException(
+                        HttpStatus.NOT_FOUND, "ERR02001", "指定した日付の勤怠レコードはありません"));
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * 従業員の勤怠レコード一覧を取得する
-     * TODO: REQ-UC002 - 勤怠レコード一覧取得APIの実装
-     */
     @GetMapping("/{employeeId}")
     public ResponseEntity<List<AttendanceResponse>> getAttendancesByEmployeeId(
-            @PathVariable String employeeId) {
-        // TODO: REQ-UC002 - 実装予定
-        return ResponseEntity.ok(List.of());
+            @PathVariable String employeeId,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        return ResponseEntity.ok(
+                attendanceService.getAttendancesByEmployeeId(employeeId, startDate, endDate));
     }
 }
