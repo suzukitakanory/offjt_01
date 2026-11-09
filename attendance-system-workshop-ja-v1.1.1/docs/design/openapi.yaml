@@ -91,24 +91,77 @@ paths:
         - attendance
       summary: 勤怠レコード登録・更新
       description: |
-        従業員の勤務時間または休暇情報を登録・更新する
+        従業員と日付の 1 件を登録または更新する。
         関連要件: UC003（勤務時間入力）, UC004（休暇登録）
+
+        **REQ-UC003**:
+        リクエストは WorkTimeRequest。出勤・退勤は必須で、status は WORK。
+        同じ従業員と日付があれば更新し、無ければ作成する。検証失敗時は保存しない。
+        成功時の画面メッセージは SUCCESS02001。API 本体は勤怠レコードを返す。
+
+        **REQ-UC004**:
+        休暇登録のリクエスト項目は未定義。この操作を共有するが、本スキーマでは定義しない。
       operationId: saveAttendance
-      # TODO: ローレベル設計でリクエストボディスキーマを定義
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              # TODO: プロパティ定義はローレベル設計で追加
+              $ref: '#/components/schemas/WorkTimeRequest'
+            examples:
+              workTime:
+                summary: 勤務時間の保存
+                value:
+                  employeeId: EMP001
+                  attendanceDate: "2025-01-15"
+                  clockInTime: "09:00"
+                  clockOutTime: "18:00"
+                  status: WORK
       responses:
         '200':
           description: 勤怠レコード保存成功
-          # TODO: ローレベル設計でレスポンススキーマを定義
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecord'
+              example:
+                id: 1
+                employeeId: EMP001
+                attendanceDate: "2025-01-15"
+                clockInTime: "09:00:00"
+                clockOutTime: "18:00:00"
+                status: WORK
+                notes: null
+                createdAt: "2025-01-15T09:00:00Z"
+                updatedAt: "2025-01-15T09:00:00Z"
         '400':
-          description: バリデーションエラー
-          # TODO: ローレベル設計でレスポンススキーマを定義
+          description: |
+            バリデーションエラー。レコードは保存しない。
+            ERR03001（前後・同刻）、ERR03002（時刻形式）、ERR03003（未入力）、
+            または従業員ID・日付の形式不正。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                clockOrder:
+                  summary: 出勤が退勤より前でない
+                  value:
+                    error: ERR03001
+                    message: 出勤時刻は退勤時刻より前である必要があります
+                    timestamp: "2025-01-15T09:00:00Z"
+                timeFormat:
+                  summary: 時刻形式が不正
+                  value:
+                    error: ERR03002
+                    message: 有効な時刻形式で入力してください
+                    timestamp: "2025-01-15T09:00:00Z"
+                requiredTimes:
+                  summary: 時刻未入力
+                  value:
+                    error: ERR03003
+                    message: 出勤時刻と退勤時刻を入力してください
+                    timestamp: "2025-01-15T09:00:00Z"
 
   /api/attendance/{employeeId}/{date}:
     get:
@@ -125,21 +178,54 @@ paths:
           required: true
           schema:
             type: string
-          description: 従業員ID
+            pattern: '^EMP[0-9]{3}$'
+          description: "従業員ID（例: EMP001）"
+          example: EMP001
         - name: date
           in: path
           required: true
           schema:
             type: string
             format: date
-          description: 勤怠日（YYYY-MM-DD形式）
+          description: "勤怠日（YYYY-MM-DD形式）。未来日も指定できる"
+          example: "2025-01-15"
       responses:
         '200':
           description: 勤怠レコード取得成功
-          # TODO: ローレベル設計でレスポンススキーマを定義
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecord'
+              example:
+                id: 1
+                employeeId: EMP001
+                attendanceDate: "2025-01-15"
+                clockInTime: "09:00:00"
+                clockOutTime: "18:00:00"
+                status: WORK
+                notes: null
+                createdAt: "2025-01-15T09:00:00Z"
+                updatedAt: "2025-01-15T09:00:00Z"
+        '400':
+          description: 従業員IDまたは日付の形式が不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Invalid employee ID format"
+                message: "従業員IDの形式が不正です"
+                timestamp: "2025-01-15T09:00:00Z"
         '404':
-          description: 勤怠レコードが見つからない
-          # TODO: ローレベル設計でレスポンススキーマを定義
+          description: 勤怠レコードが見つからない。メッセージは ERR02001。SCR-002 の初期表示では画面エラーにしない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: ERR02001
+                message: 指定した日付の勤怠レコードはありません
+                timestamp: "2025-01-15T09:00:00Z"
 
   /api/attendance/{employeeId}:
     get:
@@ -154,6 +240,10 @@ paths:
         将来的にカレンダー画面で勤怠状態を表示する際に使用する予定。
         現在の実装では、カレンダー操作はフロントエンドのみで完結しており、
         このAPIは呼び出されません。
+
+        **REQ-UC003での利用**:
+        機能要件として一覧取得を維持する。勤務時間入力ダイアログは特定日取得を使い、
+        カレンダーの勤怠バッジ表示には使わない。未登録でも 200 と空配列を返す。
       operationId: getAttendancesByEmployeeId
       parameters:
         - name: employeeId
@@ -162,7 +252,7 @@ paths:
           schema:
             type: string
             pattern: '^EMP[0-9]{3}$'
-          description: 従業員ID（例: EMP001）
+          description: "従業員ID（例: EMP001）"
           example: EMP001
         - name: startDate
           in: query
@@ -277,6 +367,47 @@ components:
             validationQuery: isValid()
 
     # ==========================================
+    # REQ-UC003: 勤務時間入力
+    # ==========================================
+    WorkTimeRequest:
+      type: object
+      description: |
+        勤務時間の登録・更新リクエスト。
+        秒は送らない。保存時に 00 秒として TIME へ格納する。
+        notes は送らない。更新時も既存の備考は変更しない。
+      required:
+        - employeeId
+        - attendanceDate
+        - clockInTime
+        - clockOutTime
+        - status
+      properties:
+        employeeId:
+          type: string
+          pattern: '^EMP[0-9]{3}$'
+          description: "従業員ID。認証実装までは EMP001"
+          example: EMP001
+        attendanceDate:
+          type: string
+          format: date
+          description: "勤怠日（YYYY-MM-DD）。未来日を許可する"
+          example: "2025-01-15"
+        clockInTime:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          description: "出勤時刻（HH:MM）。退勤時刻より前"
+          example: "09:00"
+        clockOutTime:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          description: "退勤時刻（HH:MM）。出勤時刻より後。同刻不可"
+          example: "18:00"
+        status:
+          type: string
+          enum: [WORK]
+          description: UC003 では WORK 固定
+          example: WORK
+
     # REQ-UC002, UC003, UC004: 勤怠レコード管理
     # ==========================================
     AttendanceRecord:
