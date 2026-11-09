@@ -21,6 +21,8 @@ tags:
     description: システムヘルスチェック
   - name: attendance
     description: 勤怠記録管理
+  - name: leave
+    description: 休暇記録管理（単一デモ従業員用）
 
 paths:
   /actuator/health:
@@ -92,15 +94,13 @@ paths:
       summary: 勤怠レコード登録・更新
       description: |
         従業員と日付の 1 件を登録または更新する。
-        関連要件: UC003（勤務時間入力）, UC004（休暇登録）
+        関連要件: UC003（勤務時間入力）
 
         **REQ-UC003**:
         リクエストは WorkTimeRequest。出勤・退勤は必須で、status は WORK。
         同じ従業員と日付があれば更新し、無ければ作成する。検証失敗時は保存しない。
         成功時の画面メッセージは SUCCESS02001。API 本体は勤怠レコードを返す。
 
-        **REQ-UC004**:
-        休暇登録のリクエスト項目は未定義。この操作を共有するが、本スキーマでは定義しない。
       operationId: saveAttendance
       requestBody:
         required: true
@@ -162,6 +162,260 @@ paths:
                     error: ERR03003
                     message: 出勤時刻と退勤時刻を入力してください
                     timestamp: "2025-01-15T09:00:00Z"
+
+  /api/leaves:
+    get:
+      tags:
+        - leave
+      summary: デモ従業員の休暇を期間で取得する
+      description: |
+        休暇ステータスの行だけを返す。勤務のみの日は含めない。
+        従業員IDはサーバー設定（デモ環境の既定値 EMP001）から取得し、要求では指定しない。
+        SCR-003 の初期表示では使わず、`GET /api/leaves/{date}` を使う。
+        関連要件: REQ-UC004（休暇登録）
+      operationId: listLeaves
+      parameters:
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: 開始日。指定する場合は to も必須
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: 終了日。指定する場合は from も必須
+      responses:
+        '200':
+          description: 休暇の一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveRecord'
+        '400':
+          description: 期間の片方だけが指定されている、または日付が不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: ERR03008
+                message: 開始日と終了日は両方指定してください
+                timestamp: "2026-11-09T09:00:00Z"
+    post:
+      tags:
+        - leave
+      summary: 休暇を新規登録する
+      description: |
+        行がない日は休暇を新規作成する。
+        休暇行がある日は既存行を変えずに409 ERR02003を返す。
+        勤務行がある日は、confirmReplaceWork が true でないとき409 ERR02005を返し、時刻を変えない。
+        true のときだけ同じ行を休暇にし、出勤・退勤時刻を空にして200を返す。新しい行は作らない。
+        従業員IDはサーバー設定（デモ環境の既定値 EMP001）から取得し、要求では指定しない。
+        認証・従業員間のアクセス制御を提供しないデモ用途のAPIであり、本番環境に公開しない。
+        関連要件: REQ-UC004（休暇登録）
+      operationId: createLeave
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLeaveRequest'
+            example:
+              date: "2026-11-09"
+              leaveType: "Sick Leave"
+              memo: 体調不良
+      responses:
+        '201':
+          description: 行がなかった日に休暇を作成した
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRecord'
+              example:
+                date: "2026-11-09"
+                leaveType: "Sick Leave"
+                memo: 体調不良
+        '200':
+          description: 確認済みの勤務行を休暇に変えた。出勤・退勤時刻は空である
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRecord'
+              example:
+                date: "2026-11-09"
+                leaveType: "Sick Leave"
+                memo: 体調不良
+        '400':
+          description: 日付、休暇区分、またはメモの入力が不正。error は ERR03004、ERR03005、ERR03006、ERR03007 のいずれか
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missingType:
+                  summary: 休暇区分が未選択
+                  value:
+                    error: ERR03005
+                    message: 休暇区分を選択してください
+                    timestamp: "2026-11-09T09:00:00Z"
+                unsupportedType:
+                  summary: 未対応の休暇区分
+                  value:
+                    error: ERR03006
+                    message: 対応する休暇区分を選択してください
+                    timestamp: "2026-11-09T09:00:00Z"
+                memoTooLong:
+                  summary: メモが501文字以上
+                  value:
+                    error: ERR03007
+                    message: メモは500文字以内で入力してください
+                    timestamp: "2026-11-09T09:00:00Z"
+        '409':
+          description: 休暇行がある、または勤務日の確認がない。確認前は既存行を変更しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                existingLeave:
+                  summary: 休暇行が既にある
+                  value:
+                    error: ERR02003
+                    message: この日付にはすでに休暇が登録されています。変更または削除を使ってください
+                    timestamp: "2026-11-09T09:00:00Z"
+                workRequiresConfirmation:
+                  summary: 勤務行があり確認していない
+                  value:
+                    error: ERR02005
+                    message: この日付には勤務時間が登録されています。休暇にすると出勤・退勤時刻は削除されます
+                    timestamp: "2026-11-09T09:00:00Z"
+
+  /api/leaves/{date}:
+    parameters:
+      - name: date
+        in: path
+        required: true
+        description: 休暇日（YYYY-MM-DD）
+        schema:
+          type: string
+          format: date
+        example: "2026-11-09"
+    get:
+      tags:
+        - leave
+      summary: 日付で休暇を取得する
+      description: 休暇レコードがない場合（通常の勤怠レコードのみの場合を含む）は404を返す。
+      operationId: getLeaveByDate
+      responses:
+        '200':
+          description: 休暇を取得した。メモなしは空文字
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRecord'
+              example:
+                date: "2026-11-09"
+                leaveType: "Sick Leave"
+                memo: 体調不良
+        '400':
+          description: 日付の形式または値が不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: ERR03004
+                message: 休暇日を指定してください
+                timestamp: "2026-11-09T09:00:00Z"
+        '404':
+          description: 指定日付に休暇がない。勤務のみの日も含む。SCR-003 の初期表示では画面エラーにしない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: ERR02002
+                message: 指定した日付の休暇はありません
+                timestamp: "2026-11-09T09:00:00Z"
+    put:
+      tags:
+        - leave
+      summary: 登録済みの休暇を変更する
+      description: 対象がない場合は新規作成せず404を返す。休暇日は変更しない。
+      operationId: updateLeaveByDate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLeaveRequest'
+      responses:
+        '200':
+          description: 休暇を更新した。日付と勤務時刻は変えない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRecord'
+              example:
+                date: "2026-11-09"
+                leaveType: "Personal Leave"
+                memo: 私用
+        '400':
+          description: 休暇区分またはメモの入力が不正。error は ERR03005、ERR03006、ERR03007 のいずれか
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: ERR03006
+                message: 対応する休暇区分を選択してください
+                timestamp: "2026-11-09T09:00:00Z"
+        '404':
+          description: 指定日付に更新可能な休暇がない。新規作成しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: ERR02002
+                message: 指定した日付の休暇はありません
+                timestamp: "2026-11-09T09:00:00Z"
+    delete:
+      tags:
+        - leave
+      summary: 登録済みの休暇を削除する
+      description: 休暇以外の勤怠レコードは削除しない。
+      operationId: deleteLeaveByDate
+      responses:
+        '204':
+          description: 休暇を削除した。応答ボディはない
+        '400':
+          description: 日付の形式または値が不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: ERR03004
+                message: 休暇日を指定してください
+                timestamp: "2026-11-09T09:00:00Z"
+        '404':
+          description: 指定日付に削除可能な休暇がない。勤務行は削除しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: ERR02002
+                message: 指定した日付の休暇はありません
+                timestamp: "2026-11-09T09:00:00Z"
 
   /api/attendance/{employeeId}/{date}:
     get:
@@ -454,13 +708,15 @@ components:
           example: "18:00:00"
         status:
           type: string
-          enum: [WORK, PAID_LEAVE, SICK_LEAVE, UNPAID_LEAVE]
+          enum: [WORK, PAID_LEAVE, SICK_LEAVE, UNPAID_LEAVE, PERSONAL_LEAVE, BUSINESS_TRIP]
           description: |
             勤怠ステータス
             - WORK: 出勤
             - PAID_LEAVE: 有給休暇
             - SICK_LEAVE: 病欠
             - UNPAID_LEAVE: 無給休暇
+            - PERSONAL_LEAVE: 私用休暇
+            - BUSINESS_TRIP: 出張
           example: "WORK"
         notes:
           type: string
@@ -477,6 +733,72 @@ components:
           format: date-time
           description: レコード最終更新日時
           example: "2024-11-18T18:00:00Z"
+
+    CreateLeaveRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - date
+        - leaveType
+      properties:
+        date:
+          type: string
+          format: date
+          description: 休暇日（過去・当日・将来を指定可能）
+          example: "2026-11-09"
+        leaveType:
+          $ref: '#/components/schemas/LeaveType'
+        memo:
+          type: string
+          maxLength: 500
+          description: 任意のメモ。省略、空文字、空白のみはメモなしとして保存し、notes は NULL にする。
+          example: 体調不良
+        confirmReplaceWork:
+          type: boolean
+          default: false
+          description: 勤務行を休暇へ変えてよいか。true のときだけ出勤・退勤時刻を空にする。休暇行には適用しない。
+
+    UpdateLeaveRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - leaveType
+      properties:
+        leaveType:
+          $ref: '#/components/schemas/LeaveType'
+        memo:
+          type: string
+          maxLength: 500
+          description: 省略、空文字、空白のみはメモなしとして扱う。日付はパスで指定し、このボディでは変更できない。
+          example: 体調不良
+
+    LeaveType:
+      type: string
+      description: 休暇区分。保存時は対応する勤怠ステータスコードに変換する。
+      enum:
+        - Sick Leave
+        - Personal Leave
+        - Business Trip
+
+    LeaveRecord:
+      type: object
+      required:
+        - date
+        - leaveType
+        - memo
+      properties:
+        date:
+          type: string
+          format: date
+          description: 休暇日
+          example: "2026-11-09"
+        leaveType:
+          $ref: '#/components/schemas/LeaveType'
+        memo:
+          type: string
+          maxLength: 500
+          description: メモがない場合は空文字。保存値 notes が NULL のときも空文字に正規化する。
+          example: 体調不良
 
     ErrorResponse:
       type: object
@@ -507,4 +829,3 @@ components:
             field: "clockInTime"
             rejectedValue: "25:00:00"
             reason: "時刻の形式が不正です"
-
