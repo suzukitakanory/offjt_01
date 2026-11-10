@@ -116,8 +116,9 @@ const WorkTimeForm = ({ attendanceDate, onCancel, onSaved }: WorkTimeFormProps) 
           <label className="work-time-field">
             出勤時刻
             <input
-              type="time"
-              step="60"
+              type="text"
+              inputMode="numeric"
+              placeholder="HH:MM"
               required
               value={clockInTime}
               onChange={(event) => setClockInTime(event.target.value)}
@@ -127,8 +128,9 @@ const WorkTimeForm = ({ attendanceDate, onCancel, onSaved }: WorkTimeFormProps) 
           <label className="work-time-field">
             退勤時刻
             <input
-              type="time"
-              step="60"
+              type="text"
+              inputMode="numeric"
+              placeholder="HH:MM"
               required
               value={clockOutTime}
               onChange={(event) => setClockOutTime(event.target.value)}
