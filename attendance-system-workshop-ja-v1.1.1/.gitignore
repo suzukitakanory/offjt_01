@@ -177,4 +177,15 @@ application-local.properties
 !/.specify/memory/
 /.specify/memory/*
 !/.specify/memory/constitution.md
-/.github/skills/
+
+# Keep existing Spec Kit skills local; newly added skill folders are tracked.
+/.github/skills/speckit-analyze/
+/.github/skills/speckit-checklist/
+/.github/skills/speckit-clarify/
+/.github/skills/speckit-constitution/
+/.github/skills/speckit-converge/
+/.github/skills/speckit-implement/
+/.github/skills/speckit-plan/
+/.github/skills/speckit-specify/
+/.github/skills/speckit-tasks/
+/.github/skills/speckit-taskstoissues/
