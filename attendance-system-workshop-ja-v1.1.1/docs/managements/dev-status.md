@@ -80,7 +80,7 @@
 | REQ-UC001 | システム起動   | 完了   | e2e/features/REQ-UC001-システム起動.feature   | -                        |
 | REQ-UC002 | カレンダー操作 | 完了   | e2e/features/REQ-UC002-カレンダー操作.feature | REQ-UC001                |
 | REQ-UC003 | 勤務時間入力   | ローレベル設計済 | e2e/features/REQ-UC003-勤務時間入力.feature   | REQ-UC001, REQ-UC002     |
-| REQ-UC004 | 休暇登録       | 未着手 | e2e/features/REQ-UC004-休暇登録.feature       | REQ-UC001, REQ-UC002     |
+| REQ-UC004 | 休暇登録       | ローレベル設計済 | e2e/features/REQ-UC004-休暇登録.feature       | REQ-UC001, REQ-UC002     |
 
 ### 状態定義
 
@@ -101,6 +101,22 @@ stateDiagram-v2
     完了 --> [*]
     note left of 未着手: 1-3 対応するマイクロ要件とE2Eシナリオが存在すること
 ```
+
+---
+
+### REQ-UC004: 休暇登録のローレベル設計
+
+状態: **ローレベル設計済**（2026-11-09）。実装前に人間のレビューを要する。
+
+| 成果物 | パス | 更新 |
+| ------ | ---- | ---- |
+| シーケンス図 | `docs/design/domain/sequence/SEQ-REQ-UC004-休暇登録.md` | 新規作成 |
+| 画面設計書 | `docs/design/screen-design.md` | SCR-003 のローレベル設計を追記 |
+| テーブル定義書 | `docs/design/database-table-definitions.md` | `attendance_records` の REQ-UC004 詳細と SQL を追記 |
+| API設計書 | `docs/design/openapi.yaml` | `/api/leaves` のスキーマ、例、エラーコードを追記 |
+| メッセージ定義書 | `docs/design/message-definition.md` | SUCCESS02002〜02004、ERR02002、ERR02003、ERR03004〜03008 を追加 |
+
+新しいテーブルは追加していない。現行 `backend/init-db/01-schema.sql` にはステータスの CHECK 制約がないため、実装時にテーブル定義書へ合わせる。
 
 ---
 

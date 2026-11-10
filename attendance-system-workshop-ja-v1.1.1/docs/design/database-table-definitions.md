@@ -59,8 +59,8 @@ erDiagram
 | attendance_date | 勤怠日     | DATE        | ✓        | -                 | 勤怠記録の対象日<br/>形式: YYYY-MM-DD                                                     |
 | clock_in_time   | 出勤時刻   | TIME        |          | NULL              | 出勤時刻<br/>形式: HH:MM:SS<br/>休暇の場合はNULL                                          |
 | clock_out_time  | 退勤時刻   | TIME        |          | NULL              | 退勤時刻<br/>形式: HH:MM:SS<br/>休暇の場合はNULL                                          |
-| status          | ステータス | VARCHAR(20) | ✓        | 'WORK'            | 勤怠ステータス<br/>値: 'WORK'（出勤）, 'PAID_LEAVE'（有給休暇）, 'SICK_LEAVE'（病欠）など |
-| notes           | 備考       | TEXT        |          | NULL              | 勤怠に関する追加情報やメモ<br/>最大長: 制限なし                                           |
+| status          | ステータス | VARCHAR(20) | ✓        | 'WORK'            | 勤怠ステータス。休暇登録では `SICK_LEAVE`、`PERSONAL_LEAVE`、`BUSINESS_TRIP` を使用 |
+| notes           | 備考       | TEXT        |          | NULL              | 勤怠に関する追加情報やメモ。休暇メモは API で最大500文字に制限 |
 | created_at      | 作成日時   | TIMESTAMP   | ✓        | CURRENT_TIMESTAMP | レコード作成日時<br/>自動設定                                                             |
 | updated_at      | 更新日時   | TIMESTAMP   | ✓        | CURRENT_TIMESTAMP | レコード最終更新日時<br/>更新時に自動更新                                                 |
 
@@ -82,7 +82,7 @@ erDiagram
 
 | 制約名                     | 条件                                                                               | 説明                                   |
 | -------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------- |
-| chk_attendance_status      | status IN ('WORK', 'PAID_LEAVE', 'SICK_LEAVE', 'UNPAID_LEAVE')                     | ステータスは定義された値のみ許可       |
+| chk_attendance_status      | status IN ('WORK', 'PAID_LEAVE', 'SICK_LEAVE', 'UNPAID_LEAVE', 'PERSONAL_LEAVE', 'BUSINESS_TRIP') | ステータスは定義された値のみ許可 |
 | chk_attendance_clock_times | clock_out_time IS NULL OR clock_in_time IS NULL OR clock_out_time > clock_in_time | 退勤時刻は出勤時刻より後である必要がある。同刻は不可 |
 
 ##### インデックス (Index)
@@ -97,12 +97,14 @@ erDiagram
 
 ##### `status`（ステータス）の値定義
 
-| 値           | 説明     | clock_in_time | clock_out_time | 備考           |
-| ------------ | -------- | ------------- | -------------- | -------------- |
-| WORK         | 出勤     | 必須          | 必須           | 通常の勤務日   |
-| PAID_LEAVE   | 有給休暇 | NULL          | NULL           | 有給休暇取得日 |
-| SICK_LEAVE   | 病欠     | NULL          | NULL           | 病気による欠勤 |
-| UNPAID_LEAVE | 無給休暇 | NULL          | NULL           | 無給の休暇     |
+| 値             | 説明         | clock_in_time | clock_out_time | 備考 |
+| -------------- | ------------ | ------------- | -------------- | ---- |
+| WORK           | 出勤         | 必須          | 必須           | 通常の勤務日 |
+| PAID_LEAVE     | 有給休暇     | NULL          | NULL           | 既存の勤怠ステータス |
+| SICK_LEAVE     | 病欠         | NULL          | NULL           | 休暇区分 `Sick Leave` に対応 |
+| UNPAID_LEAVE   | 無給休暇     | NULL          | NULL           | 既存の勤怠ステータス |
+| PERSONAL_LEAVE | 私用休暇     | NULL          | NULL           | 休暇区分 `Personal Leave` に対応 |
+| BUSINESS_TRIP  | 出張         | NULL          | NULL           | 休暇区分 `Business Trip` に対応 |
 
 **データ例**:
 
@@ -118,16 +120,24 @@ VALUES ('EMP001', '2024-11-19', NULL, NULL, 'PAID_LEAVE', '家族旅行');
 -- 病欠
 INSERT INTO attendance_records (employee_id, attendance_date, clock_in_time, clock_out_time, status, notes)
 VALUES ('EMP001', '2024-11-20', NULL, NULL, 'SICK_LEAVE', '風邪のため');
+
+-- 私用休暇
+INSERT INTO attendance_records (employee_id, attendance_date, clock_in_time, clock_out_time, status, notes)
+VALUES ('EMP001', '2024-11-21', NULL, NULL, 'PERSONAL_LEAVE', '私用');
+
+-- 出張
+INSERT INTO attendance_records (employee_id, attendance_date, clock_in_time, clock_out_time, status, notes)
+VALUES ('EMP001', '2024-11-22', NULL, NULL, 'BUSINESS_TRIP', '大阪出張');
 ```
 
 **関連要件とテーブル利用**:
 
-| 要件      | 操作          | 説明                                                                                   |
-| --------- | ------------- | -------------------------------------------------------------------------------------- |
-| REQ-UC001 | -             | システム起動時はテーブルにアクセスしない（画面表示のみ）                               |
-| REQ-UC002 | SELECT        | カレンダー操作は現在フロントエンドのみで完結。将来的に勤怠データを取得して表示する予定 |
-| REQ-UC003 | INSERT/UPDATE/SELECT | 従業員と日付の 1 件を WORK として作成または更新し、特定日を再取得する。未来日は拒否しない |
-| REQ-UC004 | INSERT/UPDATE | 休暇登録時にレコードを作成または更新                                                   |
+| 要件      | 操作                         | 説明 |
+| --------- | ---------------------------- | ---- |
+| REQ-UC001 | -                            | システム起動時はテーブルにアクセスしない（画面表示のみ） |
+| REQ-UC002 | SELECT                       | カレンダー操作は現在フロントエンドのみで完結。将来的に勤怠データを取得して表示する予定 |
+| REQ-UC003 | INSERT/UPDATE/SELECT         | 従業員と日付の1件を `WORK` として作成または更新し、特定日を再取得する。未来日は拒否しない |
+| REQ-UC004 | INSERT/SELECT/UPDATE/DELETE  | 休暇区分をステータスコードに変換して日次レコードとして保存する。新規登録は未使用日付のみ、更新・削除は既存休暇レコードのみを対象とする |
 
 **REQ-UC002（カレンダー操作）の詳細**:
 
@@ -172,6 +182,57 @@ WHERE employee_id = 'EMP001'
 SELECT * FROM attendance_records
 WHERE employee_id = 'EMP001'
   AND attendance_date = '2025-01-15';
+```
+
+**REQ-UC004（休暇登録）の詳細**:
+
+休暇は独立テーブルを作らず、`attendance_records` の日次レコードとして保存する。従業員 ID はサーバー設定のデモ用 ID（既定 `EMP001`）を使用し、休暇 API の入力では受け取らない。
+
+| 画面上の休暇区分 | `status` の保存値 |
+| ---------------- | ----------------- |
+| Sick Leave       | `SICK_LEAVE` |
+| Personal Leave   | `PERSONAL_LEAVE` |
+| Business Trip    | `BUSINESS_TRIP` |
+
+- `attendance_date` は過去・当日・将来を許可する。
+- `clock_in_time` と `clock_out_time` は `NULL` とする。
+- メモは任意。省略または空文字はメモなしとして扱い、保存値は `NULL`、取得レスポンスでは空文字に正規化する。休暇メモの上限500文字は API で検証する。
+- 従業員 ID と日付の一意キーにより、同じ日付へ2件目の行は作らない。休暇行がある追加登録は拒否する。
+- 勤務行がある日は、従業員が時刻の削除を確認したときだけ、その行の `status` を休暇コードにし、`clock_in_time` と `clock_out_time` を `NULL` にする。確認なしでは勤務行を更新しない。
+- 取得は対象日が休暇ステータスの場合に限り成功とする。通常の勤怠レコードのみ、または対象行がない場合は休暇なしとして扱う。
+- 更新は既存の休暇ステータスの `status` と `notes` のみを変更する。対象がない場合は新規作成せず404を返す。
+- 削除は既存の休暇ステータスの行だけを対象とする。対象がない場合は何も削除せず404を返す。
+- `chk_attendance_status` の実DDLがこの表の許可値と一致していることを確認し、`PERSONAL_LEAVE` と `BUSINESS_TRIP` を含まない場合は `backend/init-db/01-schema.sql` と整合させる。
+- 現行の `backend/init-db/01-schema.sql` には `status` の CHECK 制約がない。実装時にこの表の `chk_attendance_status` と `chk_attendance_clock_times` を DDL へ反映する。設計上の新しいテーブルは追加しない。
+
+```sql
+-- 未使用日への休暇登録。時刻は NULL、メモなしは notes を NULL にする
+INSERT INTO attendance_records (
+  employee_id, attendance_date, clock_in_time, clock_out_time, status, notes
+) VALUES (
+  'EMP001', '2026-11-09', NULL, NULL, 'SICK_LEAVE', NULL
+);
+
+-- 休暇だけを取得する。勤務のみの日は休暇不存在として扱う
+SELECT id, employee_id, attendance_date, status, notes
+FROM attendance_records
+WHERE employee_id = 'EMP001'
+  AND attendance_date = '2026-11-09'
+  AND status IN ('SICK_LEAVE', 'PERSONAL_LEAVE', 'BUSINESS_TRIP');
+
+-- 既存休暇の区分とメモだけを更新する。日付と時刻は変えない
+UPDATE attendance_records
+SET status = 'PERSONAL_LEAVE',
+    notes = '私用'
+WHERE employee_id = 'EMP001'
+  AND attendance_date = '2026-11-09'
+  AND status IN ('SICK_LEAVE', 'PERSONAL_LEAVE', 'BUSINESS_TRIP');
+
+-- 休暇行だけを削除する。勤務行は削除条件に含めない
+DELETE FROM attendance_records
+WHERE employee_id = 'EMP001'
+  AND attendance_date = '2026-11-09'
+  AND status IN ('SICK_LEAVE', 'PERSONAL_LEAVE', 'BUSINESS_TRIP');
 ```
 
 **備考**:
