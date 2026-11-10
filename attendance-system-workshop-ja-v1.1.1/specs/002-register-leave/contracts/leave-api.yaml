@@ -1,0 +1,255 @@
+openapi: 3.0.3
+info:
+  title: Leave Record API
+  version: 1.0.0
+  description: |
+    デモ従業員本人の休暇を作成、取得、更新、削除する契約。
+    従業員 ID はサーバー設定（既定 EMP001）から決め、要求では受け取らない。
+    認証は提供しない。本番公開や本番データベース接続は対象外。
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/leaves:
+    post:
+      operationId: createLeave
+      summary: 休暇を新規登録する
+      description: |
+        行がない日は休暇を作成する。
+        休暇行がある日は既存行を変えずに409 ERR02003を返す。
+        勤務行がある日は、confirmReplaceWork がないとき409 ERR02005を返し、時刻を変えない。
+        confirmReplaceWork が true のときだけ、同じ行を休暇にし、出勤・退勤時刻を空にして200を返す。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLeaveRequest'
+            example:
+              date: '2026-11-09'
+              leaveType: Sick Leave
+              memo: 体調不良
+      responses:
+        '201':
+          description: 行がなかった日に休暇を作成した
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRecord'
+        '200':
+          description: 確認済みの勤務行を休暇に変えた。時刻は空である
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRecord'
+        '400':
+          description: 日付、区分、またはメモが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 休暇が既にある、または勤務日の確認がない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      operationId: listLeaves
+      summary: デモ従業員の休暇を取得する
+      description: 休暇コードのレコードだけを返す。勤務のみの日は含めない。
+      parameters:
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 休暇の一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveRecord'
+        '400':
+          description: 期間の片方だけが指定されている、または日付が不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/leaves/{date}:
+    parameters:
+      - name: date
+        in: path
+        required: true
+        description: 休暇日（YYYY-MM-DD）
+        schema:
+          type: string
+          format: date
+        example: '2026-11-09'
+    get:
+      operationId: getLeaveByDate
+      summary: 日付で休暇を取得する
+      responses:
+        '200':
+          description: 休暇を取得した
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRecord'
+        '400':
+          description: 日付が不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 指定日付に休暇がない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: updateLeaveByDate
+      summary: 既存の休暇を変更する
+      description: 対象がない場合は作成せず404を返す。日付は変更しない。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLeaveRequest'
+      responses:
+        '200':
+          description: 休暇を更新した
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRecord'
+        '400':
+          description: 区分またはメモが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 指定日付に更新できる休暇がない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: deleteLeaveByDate
+      summary: 既存の休暇を削除する
+      description: 勤務のみの日は削除せず404を返す。
+      responses:
+        '204':
+          description: 休暇を削除した
+        '400':
+          description: 日付が不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 指定日付に削除できる休暇がない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CreateLeaveRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - date
+        - leaveType
+      properties:
+        date:
+          type: string
+          format: date
+          description: 休暇日。過去、当日、将来を許可する。
+        leaveType:
+          $ref: '#/components/schemas/LeaveType'
+        memo:
+          type: string
+          maxLength: 500
+          description: 任意。省略、空文字、空白のみはメモなしとして扱う。
+        confirmReplaceWork:
+          type: boolean
+          default: false
+          description: 勤務行を休暇へ変えてよいか。true のときだけ出勤・退勤時刻を空にする。
+    UpdateLeaveRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - leaveType
+      properties:
+        leaveType:
+          $ref: '#/components/schemas/LeaveType'
+        memo:
+          type: string
+          maxLength: 500
+          description: 省略、空文字、空白のみはメモなしとして扱う。
+    LeaveRecord:
+      type: object
+      additionalProperties: false
+      required:
+        - date
+        - leaveType
+        - memo
+      properties:
+        date:
+          type: string
+          format: date
+        leaveType:
+          $ref: '#/components/schemas/LeaveType'
+        memo:
+          type: string
+          maxLength: 500
+          description: メモがない場合は空文字。
+      example:
+        date: '2026-11-09'
+        leaveType: Sick Leave
+        memo: 体調不良
+    LeaveType:
+      type: string
+      enum:
+        - Sick Leave
+        - Personal Leave
+        - Business Trip
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          enum:
+            - ERR03004
+            - ERR03005
+            - ERR03006
+            - ERR03007
+            - ERR03008
+            - ERR02002
+            - ERR02003
+            - ERR02005
+          description: |
+            メッセージ定義書の ID。文言は docs/design/message-definition.md を正とする。
+            400 は ERR03004〜ERR03008、404 は ERR02002、409 は ERR02003 または ERR02005。
+        message:
+          type: string
+          description: 従業員が次の操作を判断できる平易な説明。内部例外は返さない。
