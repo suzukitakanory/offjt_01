@@ -206,3 +206,62 @@
   color: #666;
   font-style: italic;
 }
+
+.work-time-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.work-time-dialog {
+  width: min(100%, 480px);
+  padding: 1.5rem;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+}
+
+.work-time-dialog-header,
+.work-time-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.work-time-dialog-header { justify-content: space-between; }
+.work-time-dialog-header h2 { margin: 0; }
+.work-time-date { margin: 1.25rem 0; font-weight: 600; }
+
+.work-time-field {
+  display: grid;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.work-time-field input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.work-time-dialog-header button,
+.work-time-actions button {
+  padding: 0.65rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f5f5f5;
+  cursor: pointer;
+}
+
+.work-time-message { color: #b42318; }
+.work-time-actions { justify-content: flex-end; margin-top: 1.5rem; }
+.work-time-actions button[type='submit'] { border-color: #1976d2; background: #1976d2; color: #fff; }
+.success-message { width: 100%; max-width: 800px; color: #247a36; font-weight: 600; }
