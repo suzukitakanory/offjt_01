@@ -35,3 +35,6 @@ server:
   port: 8080
   servlet:
     context-path: /
+
+attendance:
+  demo-employee-id: EMP001
