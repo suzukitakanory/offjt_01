@@ -29,6 +29,8 @@ const WorkTimeForm = ({ attendanceDate, onCancel, onSaved }: WorkTimeFormProps) 
   const [clockInTime, setClockInTime] = useState('')
   const [clockOutTime, setClockOutTime] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
+  const [loadRequestId, setLoadRequestId] = useState(0)
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -38,6 +40,7 @@ const WorkTimeForm = ({ attendanceDate, onCancel, onSaved }: WorkTimeFormProps) 
     setClockOutTime('')
     setMessage('')
     setIsLoading(true)
+    setLoadFailed(false)
 
     getAttendanceByDate('EMP001', attendanceDate)
       .then((record) => {
@@ -46,7 +49,10 @@ const WorkTimeForm = ({ attendanceDate, onCancel, onSaved }: WorkTimeFormProps) 
         setClockOutTime(record.clockOutTime?.slice(0, 5) ?? '')
       })
       .catch((error: unknown) => {
-        if (active) setMessage(getErrorMessage(error))
+        if (active) {
+          setMessage(getErrorMessage(error))
+          setLoadFailed(true)
+        }
       })
       .finally(() => {
         if (active) setIsLoading(false)
@@ -55,10 +61,11 @@ const WorkTimeForm = ({ attendanceDate, onCancel, onSaved }: WorkTimeFormProps) 
     return () => {
       active = false
     }
-  }, [attendanceDate])
+  }, [attendanceDate, loadRequestId])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (isLoading || loadFailed) return
     if (!clockInTime || !clockOutTime) {
       setMessage('ERR03003: 出勤時刻と退勤時刻を入力してください')
       return
@@ -114,7 +121,7 @@ const WorkTimeForm = ({ attendanceDate, onCancel, onSaved }: WorkTimeFormProps) 
               required
               value={clockInTime}
               onChange={(event) => setClockInTime(event.target.value)}
-              disabled={isLoading || isSaving}
+              disabled={isLoading || loadFailed || isSaving}
             />
           </label>
           <label className="work-time-field">
@@ -125,7 +132,7 @@ const WorkTimeForm = ({ attendanceDate, onCancel, onSaved }: WorkTimeFormProps) 
               required
               value={clockOutTime}
               onChange={(event) => setClockOutTime(event.target.value)}
-              disabled={isLoading || isSaving}
+              disabled={isLoading || loadFailed || isSaving}
             />
           </label>
           {isLoading && <p role="status">勤怠情報を読み込んでいます...</p>}
@@ -134,11 +141,22 @@ const WorkTimeForm = ({ attendanceDate, onCancel, onSaved }: WorkTimeFormProps) 
               {message}
             </p>
           )}
+          {loadFailed && (
+            <button
+              type="button"
+              onClick={() => {
+                setMessage('')
+                setLoadRequestId((requestId) => requestId + 1)
+              }}
+            >
+              再読み込み
+            </button>
+          )}
           <div className="work-time-actions">
             <button type="button" onClick={onCancel} disabled={isSaving}>
               キャンセル
             </button>
-            <button type="submit" disabled={isLoading || isSaving}>
+            <button type="submit" disabled={isLoading || loadFailed || isSaving}>
               {isSaving ? '保存中...' : '保存'}
             </button>
           </div>
