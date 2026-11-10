@@ -104,6 +104,22 @@ stateDiagram-v2
 
 ---
 
+### REQ-UC003: 勤務時間入力のローレベル設計
+
+状態: **ローレベル設計済**（2026-11-09）。実装前に人間のレビューを要する。
+
+| 成果物 | パス | 更新 |
+| ------ | ---- | ---- |
+| シーケンス図 | `docs/design/domain/sequence/SEQ-REQ-UC003-勤務時間入力.md` | 新規作成 |
+| 画面設計書 | `docs/design/screen-design.md` | SCR-002 のローレベル設計を追記 |
+| テーブル定義書 | `docs/design/database-table-definitions.md` | `attendance_records` の REQ-UC003 詳細と制約を追記 |
+| API設計書 | `docs/design/openapi.yaml` | 勤務時間保存・特定日取得の契約を追記 |
+| メッセージ定義書 | `docs/design/message-definition.md` | SUCCESS02001、ERR02001、ERR03001〜ERR03005 を追加 |
+
+新しいテーブルは追加していない。`status` の長さはテーブル定義書が VARCHAR(20)、現行 SQL / JPA エンティティが VARCHAR(50) のため、実装時に確認する。
+
+---
+
 ### REQ-UC004: 休暇登録のローレベル設計
 
 状態: **ローレベル設計済**（2026-11-09）。実装前に人間のレビューを要する。
@@ -120,4 +136,4 @@ stateDiagram-v2
 
 ---
 
-**最終更新日**: 2026-11-09
+**最終更新日**: 2026-11-10
