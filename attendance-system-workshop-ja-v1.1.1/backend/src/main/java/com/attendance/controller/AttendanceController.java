@@ -4,6 +4,7 @@ import com.attendance.dto.AttendanceRequest;
 import com.attendance.dto.AttendanceResponse;
 import com.attendance.exception.AttendanceApiException;
 import com.attendance.service.AttendanceService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class AttendanceController {
     }
 
     @PostMapping
-    public ResponseEntity<AttendanceResponse> saveAttendance(@RequestBody AttendanceRequest request) {
+    public ResponseEntity<AttendanceResponse> saveAttendance(@Valid @RequestBody AttendanceRequest request) {
         return ResponseEntity.ok(attendanceService.saveAttendance(request));
     }
 
