@@ -1,22 +1,32 @@
-/**
- * 勤怠レコード型定義
- * 関連要件: REQ-UC002 - カレンダー操作, REQ-UC003 - 勤務時間入力, REQ-UC004 - 休暇登録
- */
+export type AttendanceStatus = 'WORK' | 'PAID_LEAVE' | 'SICK_LEAVE' | 'UNPAID_LEAVE'
+
 export interface AttendanceRecord {
-  id?: number
+  id: number
   employeeId: string
   attendanceDate: string
-  clockInTime?: string
-  clockOutTime?: string
-  status?: string
-  notes?: string
-  createdAt?: string
-  updatedAt?: string
+  clockInTime: string | null
+  clockOutTime: string | null
+  status: AttendanceStatus
+  notes: string | null
+  createdAt: string
+  updatedAt: string
 }
 
-/**
- * 勤怠レコードリクエスト型定義
- */
+export interface WorkTimeRequest {
+  employeeId: string
+  attendanceDate: string
+  clockInTime: string
+  clockOutTime: string
+  status: 'WORK'
+}
+
+export interface AttendanceApiErrorResponse {
+  error: string
+  message: string
+  timestamp: string
+}
+
+// Keep the shared request shape for the separate leave-registration flow.
 export interface AttendanceRequest {
   employeeId: string
   attendanceDate: string

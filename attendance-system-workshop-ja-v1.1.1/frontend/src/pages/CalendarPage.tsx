@@ -1,17 +1,24 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Calendar from '../components/Calendar'
+import WorkTimeForm from '../components/WorkTimeForm'
+
+const formatDateKey = (date: Date): string =>
+  `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}-${`${date.getDate()}`.padStart(2, '0')}`
 
 /**
  * メイン画面（カレンダー表示）
  * 関連要件: REQ-UC001 - システム起動, REQ-UC002 - カレンダー操作
  * 関連画面: SCR-001
  */
-const CalendarPage: React.FC = () => {
+const CalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [isWorkTimeFormOpen, setIsWorkTimeFormOpen] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
 
   // 日付選択時のハンドラー (REQ-UC002)
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date)
+    setSuccessMessage('')
   }
 
   // 日付をフォーマット
@@ -35,7 +42,10 @@ const CalendarPage: React.FC = () => {
               <button 
                 className="btn-work-time"
                 data-testid="btn-work-time"
-                disabled
+                onClick={() => {
+                  setSuccessMessage('')
+                  setIsWorkTimeFormOpen(true)
+                }}
               >
                 勤務時間入力
               </button>
@@ -48,11 +58,22 @@ const CalendarPage: React.FC = () => {
               </button>
             </div>
             <p className="info-text">
-              ※ 勤務時間入力と休暇登録機能は今後の要件で実装されます
+              ※ 休暇登録機能は今後の要件で実装されます
             </p>
           </div>
         )}
+        {successMessage && <p className="success-message" role="status">{successMessage}</p>}
       </main>
+      {isWorkTimeFormOpen && selectedDate && (
+        <WorkTimeForm
+          attendanceDate={formatDateKey(selectedDate)}
+          onCancel={() => setIsWorkTimeFormOpen(false)}
+          onSaved={() => {
+            setIsWorkTimeFormOpen(false)
+            setSuccessMessage('勤怠情報が正常に保存されました')
+          }}
+        />
+      )}
     </div>
   )
 }
