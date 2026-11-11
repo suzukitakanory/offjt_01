@@ -2,6 +2,7 @@ package com.attendance.controller;
 
 import com.attendance.dto.ApiErrorResponse;
 import com.attendance.dto.LeaveResponse;
+import com.attendance.dto.UpdateLeaveRequest;
 import com.attendance.exception.LeaveApiException;
 import com.attendance.service.LeaveService;
 import org.junit.jupiter.api.Test;
@@ -12,12 +13,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -145,6 +149,76 @@ class LeaveControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("ERR02005"))
                 .andExpect(jsonPath("$.message").value("この日付には勤務時間が登録されています。休暇にすると出勤・退勤時刻は削除されます"))
+                .andExpect(jsonPath("$.timestamp").doesNotExist());
+    }
+
+    /** 更新要求が200を返し、更新内容と要求値がサービスへ渡ることを検証する。 */
+    @Test
+    void updatesLeaveWithStatus200() throws Exception {
+        when(leaveService.update(eq("2026-11-18"), any()))
+                .thenReturn(new LeaveResponse("2026-11-18", "Personal Leave", "更新後"));
+
+        mockMvc.perform(put("/api/leaves/2026-11-18")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"leaveType":"Personal Leave","memo":"更新後"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.date").value("2026-11-18"))
+                .andExpect(jsonPath("$.leaveType").value("Personal Leave"))
+                .andExpect(jsonPath("$.memo").value("更新後"));
+        verify(leaveService).update(eq("2026-11-18"), argThat((UpdateLeaveRequest request) ->
+                "Personal Leave".equals(request.getLeaveType()) && "更新後".equals(request.getMemo())));
+    }
+
+    /** 更新要求で休暇区分が未指定の場合に400となり、サービスを呼ばないことを検証する。 */
+    @Test
+    void returns400WhenUpdateLeaveTypeIsMissing() throws Exception {
+        expectBadUpdateRequest("2026-11-18", "{}", ApiErrorResponse.ERR03005, "休暇区分を選択してください");
+        verify(leaveService, never()).update(anyString(), any());
+    }
+
+    /** 未対応の休暇区分を含む更新要求が400となり、サービスを呼ばないことを検証する。 */
+    @Test
+    void returns400WhenUpdateLeaveTypeIsUnsupported() throws Exception {
+        expectBadUpdateRequest("2026-11-18", """
+                {"leaveType":"Paid Leave"}
+                """, ApiErrorResponse.ERR03006, "対応する休暇区分を選択してください");
+        verify(leaveService, never()).update(anyString(), any());
+    }
+
+    /** 501文字のメモを含む更新要求が400となり、サービスを呼ばないことを検証する。 */
+    @Test
+    void returns400WhenUpdateMemoExceeds500Characters() throws Exception {
+        expectBadUpdateRequest("2026-11-18", """
+                {"leaveType":"Sick Leave","memo":"%s"}
+                """.formatted("あ".repeat(501)), ApiErrorResponse.ERR03007, "メモは500文字以内で入力してください");
+        verify(leaveService, never()).update(anyString(), any());
+    }
+
+    /** 更新対象がない場合に404とERR02002を返すことを検証する。 */
+    @Test
+    void returns404WhenUpdateTargetDoesNotExist() throws Exception {
+        when(leaveService.update(eq("2026-11-20"), any())).thenThrow(LeaveApiException.leaveNotFound());
+
+        mockMvc.perform(put("/api/leaves/2026-11-20")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"leaveType":"Sick Leave","memo":"更新"}
+                                """))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("ERR02002"))
+                .andExpect(jsonPath("$.message").value("指定した日付の休暇はありません"))
+                .andExpect(jsonPath("$.timestamp").doesNotExist());
+    }
+
+    private void expectBadUpdateRequest(String date, String body, String error, String message) throws Exception {
+        mockMvc.perform(put("/api/leaves/" + date)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(error))
+                .andExpect(jsonPath("$.message").value(message))
                 .andExpect(jsonPath("$.timestamp").doesNotExist());
     }
 

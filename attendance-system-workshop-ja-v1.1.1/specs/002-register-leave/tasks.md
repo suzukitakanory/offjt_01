@@ -110,9 +110,9 @@ description: "休暇登録のタスク一覧"
 
 ### ユーザーストーリー 3 のテスト ⚠️
 
-- [ ] T021 [P] [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/test/java/com/attendance/service/LeaveServiceTest.java` に、既存休暇の区分とメモの更新、日付と時刻を変えないこと、存在しない休暇と勤務のみの日を更新しないことを検証するテストを追加する。
-- [ ] T022 [P] [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/test/java/com/attendance/controller/LeaveControllerTest.java` に、`PUT /api/leaves/{date}` の200、入力不正の400、対象なしの404 `ERR02002` を検証するテストを追加する。
-- [ ] T023 [P] [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/features/REQ-UC004-休暇登録.feature` と `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/features/step_definitions/req-uc004-leave-registration.steps.ts` に、変更の保存と再取得、存在しない休暇の更新が SUCCESS02003 にならないシナリオを追加する。
+- [X] T021 [P] [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/test/java/com/attendance/service/LeaveServiceTest.java` に、既存休暇の区分とメモの更新、日付と時刻を変えないこと、存在しない休暇と勤務のみの日を更新しないことを検証するテストを追加する。
+- [X] T022 [P] [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/test/java/com/attendance/controller/LeaveControllerTest.java` に、`PUT /api/leaves/{date}` の200、入力不正の400、対象なしの404 `ERR02002` を検証するテストを追加する。
+- [X] T023 [P] [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/features/REQ-UC004-休暇登録.feature` と `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/features/step_definitions/req-uc004-leave-registration.steps.ts` に、変更の保存と再取得、存在しない休暇の更新が SUCCESS02003 にならないシナリオを追加する。
 
 ### ユーザーストーリー 3 の実装
 
