@@ -243,13 +243,20 @@
   font-weight: 600;
 }
 
-.work-time-field input {
+.work-time-field input,
+.work-time-field select,
+.work-time-field textarea {
   box-sizing: border-box;
   width: 100%;
   padding: 0.7rem;
   border: 1px solid #aaa;
   border-radius: 4px;
   font: inherit;
+}
+
+.work-time-field textarea {
+  min-height: 7rem;
+  resize: vertical;
 }
 
 .work-time-dialog-header button,
@@ -264,4 +271,5 @@
 .work-time-message { color: #b42318; }
 .work-time-actions { justify-content: flex-end; margin-top: 1.5rem; }
 .work-time-actions button[type='submit'] { border-color: #1976d2; background: #1976d2; color: #fff; }
+.leave-confirmation-backdrop { z-index: 11; }
 .success-message { width: 100%; max-width: 800px; color: #247a36; font-weight: 600; }

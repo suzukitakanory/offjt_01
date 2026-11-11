@@ -72,11 +72,11 @@ description: "休暇登録のタスク一覧"
 
 ### ユーザーストーリー 1 の実装
 
-- [ ] T012 [US1] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/service/LeaveService.java` に、`attendance.demo-employee-id` と既存の `AttendanceRecordRepository` を使う新規作成と日付取得を実装する。休暇行がある日は作成しない。勤務行は `confirmReplaceWork` が true のときだけ同じ行を休暇にし、出勤・退勤時刻を空にする。空白のみのメモは `notes` を NULL として保存する。取得は休暇ステータスの行だけを成功とする。
-- [ ] T013 [US1] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/controller/LeaveController.java` に `POST /api/leaves` と `GET /api/leaves/{date}` を実装する。成功は201と200、契約どおり400、404、409を返す。従業員 ID は要求で受け取らない。
-- [ ] T014 [P] [US1] `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/types/leave.ts` と `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/services/leaveService.ts` に、3区分の型と休暇作成、日付取得の呼び出しを追加する。従業員 ID は送らない。
-- [ ] T015 [US1] `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/components/LeaveForm.tsx` と `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/pages/CalendarPage.tsx` に、`offjt_01/attendance-system-workshop-ja-v1.1.1/docs/design/screen-design.md` の SCR-003 と `offjt_01/attendance-system-workshop-ja-v1.1.1/docs/design/domain/sequence/SEQ-REQ-UC004-休暇登録.md` の SEQ-UC004-001、SEQ-UC004-002 に従い、日付、3区分、任意メモ、不足項目と501文字の保存拒否、SUCCESS02002 と ERR02003 の表示を実装する。ERR02005 は確認ダイアログにし、確認したときだけ `confirmReplaceWork: true` で再送する。初期表示の404では ERR02002 を出さない。
-- [ ] T016 [US1] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/` で `mvn test` を実行し、`offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/` で `@REQ-UC004` の登録シナリオを実行して、保存した日付、区分、メモを再取得できることを確認する。
+- [X] T012 [US1] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/service/LeaveService.java` に、`attendance.demo-employee-id` と既存の `AttendanceRecordRepository` を使う新規作成と日付取得を実装する。休暇行がある日は作成しない。勤務行は `confirmReplaceWork` が true のときだけ同じ行を休暇にし、出勤・退勤時刻を空にする。空白のみのメモは `notes` を NULL として保存する。取得は休暇ステータスの行だけを成功とする。
+- [X] T013 [US1] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/controller/LeaveController.java` に `POST /api/leaves` と `GET /api/leaves/{date}` を実装する。成功は201と200、契約どおり400、404、409を返す。従業員 ID は要求で受け取らない。
+- [X] T014 [P] [US1] `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/types/leave.ts` と `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/services/leaveService.ts` に、3区分の型と休暇作成、日付取得の呼び出しを追加する。従業員 ID は送らない。
+- [X] T015 [US1] `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/components/LeaveForm.tsx` と `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/pages/CalendarPage.tsx` に、`offjt_01/attendance-system-workshop-ja-v1.1.1/docs/design/screen-design.md` の SCR-003 と `offjt_01/attendance-system-workshop-ja-v1.1.1/docs/design/domain/sequence/SEQ-REQ-UC004-休暇登録.md` の SEQ-UC004-001、SEQ-UC004-002 に従い、日付、3区分、任意メモ、不足項目と501文字の保存拒否、SUCCESS02002 と ERR02003 の表示を実装する。ERR02005 は確認ダイアログにし、確認したときだけ `confirmReplaceWork: true` で再送する。初期表示の404では ERR02002 を出さない。
+- [X] T016 [US1] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/` で `mvn test` を実行し、`offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/` で `@REQ-UC004` の登録シナリオを実行して、保存した日付、区分、メモを再取得できることを確認する。
 
 **確認地点**: 休暇の新規登録と日付取得が単独で動作し、不正入力と重複は既存レコードを変えない
 
