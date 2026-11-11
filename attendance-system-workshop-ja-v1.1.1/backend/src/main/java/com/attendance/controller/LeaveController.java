@@ -23,6 +23,9 @@ public class LeaveController {
         this.leaveService = leaveService;
     }
 
+    /**
+     * 休暇を作成し、新規登録は201、確認済み勤務行の置換は200を返す。
+     */
     @PostMapping
     public ResponseEntity<LeaveResponse> create(@Valid @RequestBody CreateLeaveRequest request) {
         LeaveService.CreationResult result = leaveService.create(request);
@@ -30,6 +33,9 @@ public class LeaveController {
         return ResponseEntity.status(status).body(result.response());
     }
 
+    /**
+     * 指定日の休暇を取得する。
+     */
     @GetMapping("/{date}")
     public LeaveResponse getByDate(@PathVariable String date) {
         return leaveService.getByDate(date);

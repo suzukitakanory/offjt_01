@@ -26,6 +26,12 @@ public class LeaveService {
         this.employeeId = employeeId;
     }
 
+    /**
+     * 入力を検証して休暇を保存する。勤務記録は確認済みの場合だけ同じ行を置換する。
+     *
+     * @param request 休暇登録要求
+     * @return 保存した休暇と勤務記録を置換したかどうか
+     */
     @Transactional
     public CreationResult create(CreateLeaveRequest request) {
         if (request == null) {
@@ -71,6 +77,12 @@ public class LeaveService {
         return new CreationResult(LeaveResponse.of(date.toString(), leaveType, memo), true);
     }
 
+    /**
+     * デモ従業員の指定日レコードを取得し、休暇でない行は未検出として扱う。
+     *
+     * @param value 休暇日（ISO形式）
+     * @return 指定日の休暇
+     */
     @Transactional(readOnly = true)
     public LeaveResponse getByDate(String value) {
         LocalDate date = parseDate(value);
@@ -81,6 +93,9 @@ public class LeaveService {
         return LeaveResponse.of(date.toString(), leaveType, record.getNotes());
     }
 
+    /**
+     * 日付文字列を解析し、不足または不正な値を休暇日エラーに変換する。
+     */
     private LocalDate parseDate(String value) {
         if (value == null || value.isBlank()) {
             throw LeaveApiException.missingDate();
@@ -92,6 +107,7 @@ public class LeaveService {
         }
     }
 
+    /** 保存結果と勤務記録を置換したかどうかを表す。 */
     public record CreationResult(LeaveResponse response, boolean replacedWork) {
     }
 }
