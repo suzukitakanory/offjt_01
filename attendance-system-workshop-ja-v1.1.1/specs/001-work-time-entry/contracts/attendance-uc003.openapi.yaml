@@ -1,0 +1,251 @@
+openapi: 3.0.3
+info:
+  title: 勤怠管理システム API（UC003 差分）
+  description: |
+    REQ-UC003 で確定する契約差分。正本へ反映する先は
+    attendance-system-workshop-ja-v1.1.1/docs/design/openapi.yaml。
+    一覧取得のスキーマは既存定義を再利用し、ここでは UC003 との関係だけを記す。
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: 開発環境
+paths:
+  /api/attendance:
+    post:
+      tags: [attendance]
+      operationId: saveAttendance
+      summary: 勤務時間の登録・更新
+      description: |
+        従業員と日付の 1 件を WORK として upsert する。
+        関連要件: REQ-UC003。休暇項目は送らない。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkTimeRequest'
+            examples:
+              create:
+                value:
+                  employeeId: EMP001
+                  attendanceDate: "2025-01-15"
+                  clockInTime: "09:00"
+                  clockOutTime: "18:00"
+                  status: WORK
+      responses:
+        '200':
+          description: 勤怠レコードを返す。SUCCESS02001 の成功メッセージは画面側で表示する
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecord'
+        '400':
+          description: |
+            検証失敗。行は保存しない。
+            ERR03001（前後・同刻）、ERR03002（時刻形式）、ERR03003（未入力）、
+            ERR03004（従業員 ID 形式）、ERR03005（日付形式）。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 予期しないエラー。ERR99001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/attendance/{employeeId}/{date}:
+    get:
+      tags: [attendance]
+      operationId: getAttendanceByDate
+      summary: 特定日の勤怠取得
+      description: "ダイアログの初期表示と、保存結果の再取得に使う。関連要件: REQ-UC003。"
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 勤怠日（YYYY-MM-DD）
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecord'
+        '404':
+          description: 未登録。ERR02001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: 従業員 ID 形式不正（ERR03004）または日付形式不正（ERR03005）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                employeeId:
+                  value:
+                    error: ERR03004
+                    message: 従業員IDの形式が不正です
+                    timestamp: "2025-01-15T09:00:00Z"
+                date:
+                  value:
+                    error: ERR03005
+                    message: 勤怠日の形式が不正です
+                    timestamp: "2025-01-15T09:00:00Z"
+        '500':
+          description: 予期しないエラー。ERR99001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/attendance/{employeeId}:
+    get:
+      tags: [attendance]
+      operationId: getAttendancesByEmployeeId
+      summary: 勤怠一覧取得
+      description: |
+        既存の一覧契約を UC003 の機能要件として維持する。
+        カレンダーのバッジ表示には使わない。startDate / endDate は任意で、指定した境界日を含む。
+        両方が指定され startDate が endDate より後の場合は空配列を返す。
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: 取得開始日（YYYY-MM-DD）。指定日を含む
+          example: "2025-01-01"
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: 取得終了日（YYYY-MM-DD）。指定日を含む
+          example: "2025-01-31"
+      responses:
+        '200':
+          description: 0 件以上。未登録でも 404 にはしない
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttendanceRecord'
+        '400':
+          description: 従業員 ID 形式不正（ERR03004）または日付形式不正（ERR03005）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                employeeId:
+                  value:
+                    error: ERR03004
+                    message: 従業員IDの形式が不正です
+                    timestamp: "2025-01-15T09:00:00Z"
+                date:
+                  value:
+                    error: ERR03005
+                    message: 勤怠日の形式が不正です
+                    timestamp: "2025-01-15T09:00:00Z"
+        '500':
+          description: 予期しないエラー。ERR99001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  parameters:
+    EmployeeId:
+      name: employeeId
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^EMP[0-9]{3}$'
+      description: 従業員 ID。今回の画面は EMP001
+  schemas:
+    WorkTimeRequest:
+      type: object
+      required: [employeeId, attendanceDate, clockInTime, clockOutTime, status]
+      properties:
+        employeeId:
+          type: string
+          pattern: '^EMP[0-9]{3}$'
+          example: EMP001
+        attendanceDate:
+          type: string
+          format: date
+          description: 未来日可
+          example: "2025-01-15"
+        clockInTime:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          description: HH:MM。退勤より前
+          example: "09:00"
+        clockOutTime:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          example: "18:00"
+        status:
+          type: string
+          enum: [WORK]
+          description: UC003 では WORK 固定
+          example: WORK
+    AttendanceRecord:
+      type: object
+      required: [id, employeeId, attendanceDate, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+          format: int64
+        employeeId:
+          type: string
+        attendanceDate:
+          type: string
+          format: date
+        clockInTime:
+          type: string
+          nullable: true
+          description: 保存後は HH:MM:SS。UC003 の成功時は非 NULL
+          example: "09:00:00"
+        clockOutTime:
+          type: string
+          nullable: true
+          example: "18:00:00"
+        status:
+          type: string
+          enum: [WORK, PAID_LEAVE, SICK_LEAVE, UNPAID_LEAVE, PERSONAL_LEAVE, BUSINESS_TRIP]
+          description: DB は共有テーブルの 6 状態を許可する。UC003 の保存状態は WORK
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      required: [error, message, timestamp]
+      properties:
+        error:
+          type: string
+          description: メッセージ ID。例 ERR03001
+        message:
+          type: string
+          description: 利用者向け日本語
+        timestamp:
+          type: string
+          format: date-time
