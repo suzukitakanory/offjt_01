@@ -1,5 +1,5 @@
 ---
-name: "pr-review"
+name: "pr-review-koya"
 description: "Pull request / PR のレビュー、差分確認、コードレビューを行う。勤怠管理システムの変更について、バグ、回帰、要件・設計との不整合、テスト不足を調べ、根拠のある指摘を報告する。"
 ---
 
