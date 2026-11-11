@@ -295,3 +295,58 @@ Then('更新対象がないことが表示され成功扱いにならない', as
   await expect(this.page.getByRole('alert')).toContainText('指定した日付の休暇はありません');
   await expect(this.page.getByText('休暇を変更しました', { exact: true })).toHaveCount(0);
 });
+
+Given('従業員が登録済み休暇を確認している', async function (this: World) {
+  const date = getLeaveDate(this);
+  const response = await request(this).get(`${API_URL}/${date}`);
+  expect(response.status()).toBe(200);
+  const leave = await response.json();
+  await selectDate(this, date);
+  await expect(this.page.getByText(`${date} の休暇`)).toBeVisible();
+  await expect(this.page.getByText(leave.leaveType)).toBeVisible();
+});
+
+When('従業員が削除ボタンをクリックする', async function (this: World) {
+  await this.page.getByRole('button', { name: '削除' }).click();
+  await expect(this.page.getByRole('dialog', { name: '削除確認' })).toBeVisible();
+});
+
+When('従業員が削除確認ダイアログで確認する', async function (this: World) {
+  await this.page.getByRole('button', { name: '削除を確認', exact: true }).click();
+});
+
+When('従業員が削除確認ダイアログでキャンセルする', async function (this: World) {
+  await this.page.getByRole('button', { name: 'キャンセル' }).click();
+});
+
+When('従業員が存在しない休暇を削除しようとする', async function (this: World) {
+  const date = getLeaveDate(this);
+  await this.page.getByRole('button', { name: '削除' }).click();
+});
+
+Then('休暇レコードが削除される', async function (this: World) {
+  const response = await request(this).get(`${API_URL}/${getLeaveDate(this)}`);
+  expect(response.status()).toBe(404);
+});
+
+Then('削除成功メッセージが表示される', async function (this: World) {
+  await expect(this.page.getByRole('status')).toContainText('休暇を削除しました');
+});
+
+Then('休暇レコードが削除されない', async function (this: World) {
+  const response = await request(this).get(`${API_URL}/${getLeaveDate(this)}`);
+  expect(response.status()).toBe(200);
+});
+
+Then('既存の休暇が変わらず残っている', async function (this: World) {
+  const response = await request(this).get(`${API_URL}/${getLeaveDate(this)}`);
+  expect(response.status()).toBe(200);
+  const leave = await response.json();
+  expect(leave.leaveType).toBe('Sick Leave');
+  expect(leave.memo).toBe('更新前');
+});
+
+Then('削除対象がないことが表示されたままで成功扱いにならない', async function (this: World) {
+  await expect(this.page.getByRole('alert')).toContainText('指定した日付の休暇はありません');
+  await expect(this.page.getByText('休暇を削除しました', { exact: true })).toHaveCount(0);
+});

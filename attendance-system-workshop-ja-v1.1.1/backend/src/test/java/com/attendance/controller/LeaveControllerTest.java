@@ -16,9 +16,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -252,6 +254,36 @@ class LeaveControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(error))
                 .andExpect(jsonPath("$.message").value(message))
+                .andExpect(jsonPath("$.timestamp").doesNotExist());
+    }
+
+    /** DELETE /api/leaves/{date} が204と出力本体なしで削除完了を返すことを検証する。 */
+    @Test
+    void deletesLeaveWithStatus204() throws Exception {
+        mockMvc.perform(delete("/api/leaves/2026-11-26"))
+                .andExpect(status().isNoContent());
+        verify(leaveService).delete(eq("2026-11-26"));
+    }
+
+    /** 日付不正の場合に400とERR03004を返すことを検証する。 */
+    @Test
+    void returns400WhenDeleteDateIsInvalid() throws Exception {
+        mockMvc.perform(delete("/api/leaves/2026-13-32"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("ERR03004"))
+                .andExpect(jsonPath("$.message").value("日付の形式が正しくありません"));
+        verify(leaveService, never()).delete(anyString());
+    }
+
+    /** 削除対象がない場合に404とERR02002を返すことを検証する。 */
+    @Test
+    void returns404WhenDeleteTargetDoesNotExist() throws Exception {
+        doThrow(LeaveApiException.leaveNotFound()).when(leaveService).delete(eq("2026-11-27"));
+
+        mockMvc.perform(delete("/api/leaves/2026-11-27"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("ERR02002"))
+                .andExpect(jsonPath("$.message").value("指定した日付の休暇はありません"))
                 .andExpect(jsonPath("$.timestamp").doesNotExist());
     }
 }
