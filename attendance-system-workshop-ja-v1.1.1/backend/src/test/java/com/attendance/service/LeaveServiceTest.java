@@ -2,6 +2,7 @@ package com.attendance.service;
 
 import com.attendance.dto.CreateLeaveRequest;
 import com.attendance.dto.LeaveResponse;
+import com.attendance.dto.UpdateLeaveRequest;
 import com.attendance.entity.AttendanceRecord;
 import com.attendance.exception.LeaveApiException;
 import com.attendance.repository.AttendanceRecordRepository;
@@ -168,7 +169,72 @@ class LeaveServiceTest {
         assertEquals("Sick Leave", leaveService.getByDate("2026-11-17").getLeaveType());
     }
 
-    /** 各テストで使う休暇作成要求を組み立てる。 */
+    /** 区分とメモを更新し、日付と出退勤時刻が維持されることを検証する。 */
+    @Test
+    void updatesLeaveTypeAndMemoWithoutChangingDateOrClockTimes() {
+        AttendanceRecord leave = new AttendanceRecord();
+        leave.setEmployeeId(EMPLOYEE_ID);
+        leave.setAttendanceDate(LocalDate.parse("2026-11-18"));
+        leave.setStatus("SICK_LEAVE");
+        leave.setNotes("更新前");
+        leave.setClockInTime(LocalTime.of(9, 0));
+        leave.setClockOutTime(LocalTime.of(18, 0));
+        attendanceRecordRepository.saveAndFlush(leave);
+
+        LeaveResponse updated = leaveService.update(
+                "2026-11-18", new UpdateLeaveRequest("Personal Leave", "更新後"));
+
+        assertEquals("2026-11-18", updated.getDate());
+        assertEquals("Personal Leave", updated.getLeaveType());
+        assertEquals("更新後", updated.getMemo());
+        AttendanceRecord stored = find("2026-11-18");
+        assertEquals(leave.getId(), stored.getId());
+        assertEquals(LocalDate.parse("2026-11-18"), stored.getAttendanceDate());
+        assertEquals("PERSONAL_LEAVE", stored.getStatus());
+        assertEquals("更新後", stored.getNotes());
+        assertEquals(LocalTime.of(9, 0), stored.getClockInTime());
+        assertEquals(LocalTime.of(18, 0), stored.getClockOutTime());
+    }
+
+    /** 更新時に空白のみのメモが空として保存されることを検証する。 */
+    @Test
+    void storesWhitespaceOnlyMemoAsNoMemoWhenUpdating() {
+        leaveService.create(request("2026-11-19", "Sick Leave", "更新前", null));
+
+        LeaveResponse updated = leaveService.update(
+                "2026-11-19", new UpdateLeaveRequest("Business Trip", " \n\t "));
+
+        assertEquals("", updated.getMemo());
+        assertNull(find("2026-11-19").getNotes());
+    }
+
+    /** 休暇が存在しない日付を更新せず、レコードも作成しないことを検証する。 */
+    @Test
+    void rejectsUpdateWhenLeaveDoesNotExist() {
+        LeaveApiException exception = assertThrows(LeaveApiException.class,
+                () -> leaveService.update("2026-11-20", new UpdateLeaveRequest("Sick Leave", "更新")));
+
+        assertEquals("ERR02002", exception.getMessageId());
+        assertEquals(0, attendanceRecordRepository.findByEmployeeId(EMPLOYEE_ID).stream()
+                .filter(record -> record.getAttendanceDate().equals(LocalDate.parse("2026-11-20")))
+                .count());
+    }
+
+    /** 勤務のみの日を更新対象にせず、勤務状態と時刻を維持することを検証する。 */
+    @Test
+    void rejectsUpdateWhenDateHasOnlyWorkAndKeepsWorkTimes() {
+        saveWork("2026-11-21", LocalTime.of(9, 0), LocalTime.of(18, 0));
+
+        LeaveApiException exception = assertThrows(LeaveApiException.class,
+                () -> leaveService.update("2026-11-21", new UpdateLeaveRequest("Sick Leave", "更新")));
+
+        assertEquals("ERR02002", exception.getMessageId());
+        AttendanceRecord stored = find("2026-11-21");
+        assertEquals("WORK", stored.getStatus());
+        assertEquals(LocalTime.of(9, 0), stored.getClockInTime());
+        assertEquals(LocalTime.of(18, 0), stored.getClockOutTime());
+    }
+
     private CreateLeaveRequest request(String date, String leaveType, String memo, Boolean confirmReplaceWork) {
         return new CreateLeaveRequest(date, leaveType, memo, confirmReplaceWork);
     }

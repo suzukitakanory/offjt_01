@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@cucumber/cucumber';
+import { Before, Given, When, Then } from '@cucumber/cucumber';
 import { expect, APIRequestContext } from '@playwright/test';
 import { World } from './world';
 
@@ -10,6 +10,7 @@ import { World } from './world';
 const UI_BASE_URL = 'http://localhost:5173';
 const API_BASE_URL = 'http://localhost:8080';
 const LEAVE_TYPES = ['Sick Leave', 'Personal Leave', 'Business Trip'];
+const API_URL = `${API_BASE_URL}/api/leaves`;
 
 const formatDateKey = (date: Date): string => {
   const year = date.getFullYear();
@@ -193,4 +194,76 @@ Then('勤務時刻が削除されている', async function (this: World) {
   const body = await response.json();
   expect(body.clockInTime ?? null).toBeNull();
   expect(body.clockOutTime ?? null).toBeNull();
+});
+
+let scenarioIndex = 0;
+
+const getLeaveDate = (world: World): string => {
+  const date = world.context.uc004LeaveDate;
+  if (typeof date !== 'string') throw new Error('休暇テスト日が設定されていません');
+  return date;
+};
+
+const openLeaveForm = async (world: World): Promise<void> => {
+  const date = getLeaveDate(world);
+  await selectDate(world, date);
+  await world.page.getByRole('button', { name: '休暇登録', exact: true }).click();
+  await expect(leaveDialog(world)).toBeVisible();
+};
+
+Before({ tags: '@leave' }, function (this: World) {
+  const date = new Date();
+  date.setDate(date.getDate() + 45 + scenarioIndex);
+  scenarioIndex += 1;
+  this.context.uc004LeaveDate = formatDateKey(date);
+});
+
+Given('従業員のテスト休暇を登録済みにする', async function (this: World) {
+  const response = await request(this).post(API_URL, {
+    data: {
+      date: getLeaveDate(this),
+      leaveType: 'Sick Leave',
+      memo: '更新前',
+    },
+  });
+  expect(response.status()).toBe(201);
+});
+
+Given('従業員が登録済み休暇の変更フォームを開く', async function (this: World) {
+  await openLeaveForm(this);
+});
+
+When('従業員が休暇メモ {string} を入力する', async function (this: World, memo: string) {
+  await memoField(this).fill(memo);
+});
+
+When('保存前に対象休暇を削除する', async function (this: World) {
+  const response = await request(this).delete(`${API_URL}/${getLeaveDate(this)}`);
+  expect(response.status()).toBe(204);
+});
+
+When('従業員が休暇の変更を保存する', async function (this: World) {
+  await this.page.getByRole('button', { name: '変更を保存', exact: true }).click();
+});
+
+Then('変更後の休暇が再取得できる', async function (this: World) {
+  const response = await request(this).get(`${API_URL}/${getLeaveDate(this)}`);
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toMatchObject({
+    date: getLeaveDate(this),
+    leaveType: 'Personal Leave',
+    memo: '私用に変更',
+  });
+});
+
+Then('休暇変更成功メッセージが表示される', async function (this: World) {
+  await expect(leaveDialog(this)).toHaveCount(0);
+  await expect(this.page.getByRole('status')).toContainText('休暇を変更しました');
+});
+
+Then('更新対象がないことが表示され成功扱いにならない', async function (this: World) {
+  const response = await request(this).get(`${API_URL}/${getLeaveDate(this)}`);
+  expect(response.status()).toBe(404);
+  await expect(this.page.getByRole('alert')).toContainText('指定した日付の休暇はありません');
+  await expect(this.page.getByText('休暇を変更しました', { exact: true })).toHaveCount(0);
 });
