@@ -12,6 +12,7 @@ const API_BASE_URL = 'http://localhost:8080';
 const LEAVE_TYPES = ['Sick Leave', 'Personal Leave', 'Business Trip'];
 const API_URL = `${API_BASE_URL}/api/leaves`;
 
+/** Dateを休暇APIで使用する YYYY-MM-DD 形式に変換する。 */
 const formatDateKey = (date: Date): string => {
   const year = date.getFullYear();
   const month = `${date.getMonth() + 1}`.padStart(2, '0');
@@ -19,6 +20,7 @@ const formatDateKey = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+/** カレンダー見出しから年月を読み取り、判読できない場合は null を返す。 */
 const extractYearMonth = (title: string | null): { year: number; month: number } | null => {
   const match = title?.match(/(\d{4})年\s*(\d{1,2})月/);
   if (!match) {
@@ -27,6 +29,7 @@ const extractYearMonth = (title: string | null): { year: number; month: number }
   return { year: Number(match[1]), month: Number(match[2]) };
 };
 
+/** カレンダーを対象月へ移動し、日付を選択してシナリオ状態に保存する。 */
 const selectDate = async (world: World, date: string) => {
   const { page } = world;
   const target = new Date(`${date}T00:00:00`);
@@ -45,18 +48,24 @@ const selectDate = async (world: World, date: string) => {
   world.context.selectedDate = date;
 };
 
+/** 休暇登録ダイアログを取得する。 */
 const leaveDialog = (world: World) => world.page.getByRole('dialog', { name: '休暇登録' });
 
+/** 休暇登録ダイアログ内の休暇区分入力欄を取得する。 */
 const leaveTypeField = (world: World) => leaveDialog(world).getByLabel('休暇区分');
 
+/** 休暇登録ダイアログ内のメモ入力欄を取得する。 */
 const memoField = (world: World) => leaveDialog(world).getByLabel('メモ');
 
+/** シナリオのページからAPIリクエストコンテキストを取得する。 */
 const request = (world: World): APIRequestContext => world.page.request;
 
+/** 休暇登録対象の日付をカレンダーで選択する。 */
 Given('従業員が休暇登録対象の日付 {string} を選択している', async function (this: World, date: string) {
   await selectDate(this, date);
 });
 
+/** 指定の休暇をAPIで事前登録し、対象日をシナリオ状態に保存する。 */
 Given('従業員 {string} が日付 {string} に {string} を登録済みである', async function (
   this: World,
   employeeId: string,
@@ -72,6 +81,7 @@ Given('従業員 {string} が日付 {string} に {string} を登録済みであ�
   this.context.selectedDate = date;
 });
 
+/** 指定の勤務時間をAPIで事前登録し、対象日をシナリオ状態に保存する。 */
 Given('従業員 {string} が日付 {string} に勤務時間を登録済みである', async function (
   this: World,
   employeeId: string,
@@ -91,31 +101,38 @@ Given('従業員 {string} が日付 {string} に勤務時間を登録済みで�
   this.context.workDate = date;
 });
 
+/** 休暇登録フォームを開き、ダイアログが表示されたことを確認する。 */
 When('従業員が休暇登録を開始する', async function (this: World) {
   await this.page.getByRole('button', { name: '休暇登録' }).click();
   await expect(leaveDialog(this)).toBeVisible();
 });
 
+/** フォームで指定された休暇区分を選択する。 */
 When('従業員が休暇区分 {string} を選択する', async function (this: World, leaveType: string) {
   await leaveTypeField(this).selectOption({ label: leaveType });
 });
 
+/** フォームのメモ欄に指定された文字列を入力する。 */
 When('従業員がメモ {string} を入力する', async function (this: World, memo: string) {
   await memoField(this).fill(memo);
 });
 
+/** メモ欄に501文字を入力し、上限超過の入力を作る。 */
 When('従業員がメモ {string} を501文字入力する', async function (this: World, character: string) {
   await memoField(this).fill(character.repeat(501));
 });
 
+/** メモ欄が空のままであることを確認する。 */
 When('従業員がメモを入力しない', async function (this: World) {
   await expect(memoField(this)).toHaveValue('');
 });
 
+/** 休暇登録フォームの登録または保存ボタンを押す。 */
 When('従業員が休暇登録フォームの保存ボタンをクリックする', async function (this: World) {
   await leaveDialog(this).getByRole('button', { name: /^(登録|保存)$/ }).click();
 });
 
+/** 勤務時刻を削除する確認ダイアログで置換を承認する。 */
 When('従業員が勤務時刻の削除を確認する', async function (this: World) {
   const confirmation = this.page.getByRole('dialog').filter({
     hasText: 'この日付には勤務時間が登録されています。休暇にすると出勤・退勤時刻は削除されます',
@@ -123,24 +140,29 @@ When('従業員が勤務時刻の削除を確認する', async function (this: W
   await confirmation.getByRole('button', { name: '確認' }).click();
 });
 
+/** 休暇登録ダイアログと見出しが表示されていることを確認する。 */
 Then('休暇登録ダイアログが表示される', async function (this: World) {
   await expect(leaveDialog(this)).toBeVisible();
   await expect(leaveDialog(this).getByRole('heading', { name: '休暇登録' })).toBeVisible();
 });
 
+/** ダイアログに指定日が表示され、日付形式も正しいことを確認する。 */
 Then('休暇日に {string} が表示される', async function (this: World, date: string) {
   await expect(leaveDialog(this).getByText(date, { exact: true })).toBeVisible();
   expect(formatDateKey(new Date(`${date}T00:00:00`))).toBe(date);
 });
 
+/** 休暇区分の入力欄が表示されていることを確認する。 */
 Then('休暇区分の入力欄が表示される', async function (this: World) {
   await expect(leaveTypeField(this)).toBeVisible();
 });
 
+/** メモの入力欄が表示されていることを確認する。 */
 Then('メモの入力欄が表示される', async function (this: World) {
   await expect(memoField(this)).toBeVisible();
 });
 
+/** 休暇区分の選択肢が指定された3種類だけであることを確認する。 */
 Then('休暇区分の選択肢は {string} と {string} と {string} だけである', async function (
   this: World,
   first: string,
@@ -153,32 +175,37 @@ Then('休暇区分の選択肢は {string} と {string} と {string} だけで�
   expect(labels).toEqual([first, second, third]);
 });
 
+/** 指定されたメッセージが画面に表示されていることを確認する。 */
 Then('{string} が表示される', async function (this: World, message: string) {
   await expect(this.page.getByText(message, { exact: true })).toBeVisible();
 });
 
+/** 休暇区分欄に指定された休暇区分が選択されていることを確認する。 */
 Then('休暇区分に {string} が表示される', async function (this: World, leaveType: string) {
   await expect(leaveTypeField(this)).toHaveValue(leaveType);
 });
 
+/** メモ欄に指定された文字列が表示されていることを確認する。 */
 Then('メモに {string} が表示される', async function (this: World, memo: string) {
   await expect(memoField(this)).toHaveValue(memo);
 });
 
+/** APIから保存結果を取得し、メモが空文字であることを確認する。 */
 Then('メモが空である', async function (this: World) {
   const date = this.context.selectedDate;
-  await expect(memoField(this)).toHaveValue('');
   const response = await request(this).get(`${API_BASE_URL}/api/leaves/${date}`);
   expect(response.ok()).toBeTruthy();
   expect((await response.json()).memo).toBe('');
 });
 
+/** 成功メッセージがなく、API上にも休暇が保存されていないことを確認する。 */
 Then('休暇が保存されない', async function (this: World) {
   await expect(this.page.getByText('休暇を登録しました', { exact: true })).toHaveCount(0);
   const response = await request(this).get(`${API_BASE_URL}/api/leaves/${this.context.selectedDate}`);
   expect(response.status()).toBe(404);
 });
 
+/** APIで取得した勤務データに出勤・退勤時刻と勤務状態が残ることを確認する。 */
 Then('勤務時刻が残っている', async function (this: World) {
   const response = await request(this).get(`${API_BASE_URL}/api/attendance/EMP001/${this.context.workDate}`);
   expect(response.ok()).toBeTruthy();
@@ -188,6 +215,7 @@ Then('勤務時刻が残っている', async function (this: World) {
   expect(body.status).toBe('WORK');
 });
 
+/** APIで取得した勤務データの出勤・退勤時刻が削除されたことを確認する。 */
 Then('勤務時刻が削除されている', async function (this: World) {
   const response = await request(this).get(`${API_BASE_URL}/api/attendance/EMP001/${this.context.workDate}`);
   expect(response.ok()).toBeTruthy();

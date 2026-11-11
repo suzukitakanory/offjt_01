@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import Calendar from '../components/Calendar'
+import LeaveForm from '../components/LeaveForm'
 import WorkTimeForm from '../components/WorkTimeForm'
 
+/** 日付をAPIとフォームで使用する YYYY-MM-DD 形式に変換する。 */
 const formatDateKey = (date: Date): string =>
   `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}-${`${date.getDate()}`.padStart(2, '0')}`
 
@@ -13,15 +15,16 @@ const formatDateKey = (date: Date): string =>
 const CalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isWorkTimeFormOpen, setIsWorkTimeFormOpen] = useState(false)
+  const [isLeaveFormOpen, setIsLeaveFormOpen] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
 
-  // 日付選択時のハンドラー (REQ-UC002)
+  /** 選択日を保持し、前回の登録成功メッセージを消去する。 */
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date)
     setSuccessMessage('')
   }
 
-  // 日付をフォーマット
+  /** 選択日を画面表示用の年月日形式に変換する。 */
   const formatDate = (date: Date): string => {
     return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
   }
@@ -52,14 +55,14 @@ const CalendarPage = () => {
               <button 
                 className="btn-leave"
                 data-testid="btn-leave"
-                disabled
+                onClick={() => {
+                  setSuccessMessage('')
+                  setIsLeaveFormOpen(true)
+                }}
               >
                 休暇登録
               </button>
             </div>
-            <p className="info-text">
-              ※ 休暇登録機能は今後の要件で実装されます
-            </p>
           </div>
         )}
         {successMessage && <p className="success-message" role="status">{successMessage}</p>}
@@ -71,6 +74,16 @@ const CalendarPage = () => {
           onSaved={() => {
             setIsWorkTimeFormOpen(false)
             setSuccessMessage('勤怠情報が正常に保存されました')
+          }}
+        />
+      )}
+      {isLeaveFormOpen && selectedDate && (
+        <LeaveForm
+          date={formatDateKey(selectedDate)}
+          onCancel={() => setIsLeaveFormOpen(false)}
+          onSaved={(message) => {
+            setIsLeaveFormOpen(false)
+            setSuccessMessage(message)
           }}
         />
       )}
