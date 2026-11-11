@@ -74,6 +74,8 @@ attendance-system-ja/
 - **コーディング規約**: `.github/instructions/` 配下に言語・領域別の指示書を配置
 - **進捗管理**: `docs/managements/dev-status.md` に開発状況を随時記録
 - **整合性**: 既存のコードベース構造、API設計、データベース設計との整合性を常に確保
+- **コミットメッセージ**: 提案・作成時は `.github/commit-message-guidelines.md` を必ず読み、Conventional Commits形式と日本語の説明文ルールに従う
+- **プルリクエスト**: タイトル・本文の作成時は `.github/pull_request_template.md` を必ず確認し、各項目を埋めて日本語で記載する
 
 ## クイックリファレンス
 
