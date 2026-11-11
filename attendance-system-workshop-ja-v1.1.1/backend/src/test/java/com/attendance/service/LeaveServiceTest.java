@@ -19,6 +19,7 @@ import java.time.LocalTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * 休暇登録サービスの統合テスト。
@@ -42,7 +43,8 @@ class LeaveServiceTest {
 
     @Test
     void createsLeaveForUnusedDate() {
-        LeaveResponse created = leaveService.create(request("2026-11-09", "Sick Leave", "体調不良", null));
+        LeaveResponse created = leaveService.create(request("2026-11-09", "Sick Leave", "体調不良", null))
+                .response();
 
         assertEquals("2026-11-09", created.getDate());
         assertEquals("Sick Leave", created.getLeaveType());
@@ -57,7 +59,8 @@ class LeaveServiceTest {
 
     @Test
     void storesEmptyMemoAsNoMemo() {
-        LeaveResponse created = leaveService.create(request("2026-11-10", "Personal Leave", "", null));
+        LeaveResponse created = leaveService.create(request("2026-11-10", "Personal Leave", "", null))
+                .response();
 
         assertEquals("", created.getMemo());
         assertNull(find("2026-11-10").getNotes());
@@ -66,7 +69,8 @@ class LeaveServiceTest {
 
     @Test
     void storesWhitespaceOnlyMemoAsNoMemo() {
-        LeaveResponse created = leaveService.create(request("2026-11-11", "Business Trip", " \n\t ", null));
+        LeaveResponse created = leaveService.create(request("2026-11-11", "Business Trip", " \n\t ", null))
+                .response();
 
         assertEquals("", created.getMemo());
         assertNull(find("2026-11-11").getNotes());
@@ -139,8 +143,11 @@ class LeaveServiceTest {
     void replacesConfirmedWorkRowAndClearsClockTimes() {
         AttendanceRecord work = saveWork("2026-11-17", LocalTime.of(8, 30), LocalTime.of(17, 30));
 
-        LeaveResponse replaced = leaveService.create(request("2026-11-17", "Sick Leave", "体調不良", true));
+        LeaveService.CreationResult result =
+                leaveService.create(request("2026-11-17", "Sick Leave", "体調不良", true));
+        LeaveResponse replaced = result.response();
 
+        assertTrue(result.replacedWork());
         assertEquals("Sick Leave", replaced.getLeaveType());
         assertEquals("体調不良", replaced.getMemo());
         AttendanceRecord stored = find("2026-11-17");

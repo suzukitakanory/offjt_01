@@ -37,7 +37,8 @@ class LeaveControllerTest {
 
     @Test
     void createsLeaveWithStatus201() throws Exception {
-        when(leaveService.create(any())).thenReturn(new LeaveResponse("2026-11-09", "Sick Leave", "体調不良"));
+        when(leaveService.create(any())).thenReturn(new LeaveService.CreationResult(
+                new LeaveResponse("2026-11-09", "Sick Leave", "体調不良"), false));
 
         mockMvc.perform(post("/api/leaves")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -53,7 +54,8 @@ class LeaveControllerTest {
 
     @Test
     void replacesConfirmedWorkDayWithStatus200() throws Exception {
-        when(leaveService.create(any())).thenReturn(new LeaveResponse("2026-11-10", "Business Trip", ""));
+        when(leaveService.create(any())).thenReturn(new LeaveService.CreationResult(
+                new LeaveResponse("2026-11-10", "Business Trip", ""), true));
 
         mockMvc.perform(post("/api/leaves")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,6 +66,19 @@ class LeaveControllerTest {
                 .andExpect(jsonPath("$.leaveType").value("Business Trip"))
                 .andExpect(jsonPath("$.memo").value(""));
         verify(leaveService).create(argThat(request -> Boolean.TRUE.equals(request.getConfirmReplaceWork())));
+    }
+
+    @Test
+    void createsUnusedDateWithStatus201EvenWhenConfirmationWasSent() throws Exception {
+        when(leaveService.create(any())).thenReturn(new LeaveService.CreationResult(
+                new LeaveResponse("2026-11-10", "Business Trip", ""), false));
+
+        mockMvc.perform(post("/api/leaves")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"date":"2026-11-10","leaveType":"Business Trip","confirmReplaceWork":true}
+                                """))
+                .andExpect(status().isCreated());
     }
 
     @Test
