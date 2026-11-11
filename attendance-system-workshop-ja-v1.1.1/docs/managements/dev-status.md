@@ -79,7 +79,7 @@
 | --------- | -------------- | ------ | --------------------------------------------- | ------------------------ |
 | REQ-UC001 | システム起動   | 完了   | e2e/features/REQ-UC001-システム起動.feature   | -                        |
 | REQ-UC002 | カレンダー操作 | 完了   | e2e/features/REQ-UC002-カレンダー操作.feature | REQ-UC001                |
-| REQ-UC003 | 勤務時間入力   | ローレベル設計済 | e2e/features/REQ-UC003-勤務時間入力.feature   | REQ-UC001, REQ-UC002     |
+| REQ-UC003 | 勤務時間入力   | 完了   | e2e/features/REQ-UC003-勤務時間入力.feature   | REQ-UC001, REQ-UC002     |
 | REQ-UC004 | 休暇登録       | ローレベル設計済 | e2e/features/REQ-UC004-休暇登録.feature       | REQ-UC001, REQ-UC002     |
 
 ### 状態定義
@@ -104,9 +104,11 @@ stateDiagram-v2
 
 ---
 
-### REQ-UC003: 勤務時間入力のローレベル設計
+### REQ-UC003: 勤務時間入力
 
-状態: **ローレベル設計済**（2026-11-09）。実装前に人間のレビューを要する。
+#### ローレベル設計（2026-11-09）
+
+設計工程の状態: **ローレベル設計済**。当時は実装前の人間レビューを要する状態だった。
 
 | 成果物 | パス | 更新 |
 | ------ | ---- | ---- |
@@ -116,7 +118,20 @@ stateDiagram-v2
 | API設計書 | `docs/design/openapi.yaml` | 勤務時間保存・特定日取得の契約を追記 |
 | メッセージ定義書 | `docs/design/message-definition.md` | SUCCESS02001、ERR02001、ERR03001〜ERR03005 を追加 |
 
-新しいテーブルは追加していない。`status` の長さはテーブル定義書が VARCHAR(20)、現行 SQL / JPA エンティティが VARCHAR(50) のため、実装時に確認する。
+新しいテーブルは追加していない。`status` の長さはテーブル定義書が VARCHAR(20)、SQL / JPA エンティティが VARCHAR(50) だが、UC003 の `WORK` は双方に収まるため変更しないことを確認した。
+
+#### 実装・試験と最終確認（2026-11-11）
+
+状態: **完了**。実装と単体・E2E 試験を完了し、最終確認後に関連 PR をマージした。PR #26 はユーザー報告によると、実装担当者以外によるレビューで問題がないことを確認してからマージした。
+
+| 工程 | 確認内容 |
+| ---- | -------- |
+| バックエンド | `mvn test` — 39 テスト成功 |
+| フロントエンド | `pnpm lint`、`pnpm build` 成功 |
+| E2E | `pnpm test --tags @REQ-UC003` — 6 シナリオ・48 ステップ成功 |
+| 最終確認・マージ | [PR #21](https://github.com/suzukitakanory/offjt_01/pull/21)（2026-11-10）と [PR #26](https://github.com/suzukitakanory/offjt_01/pull/26)（2026-11-11）はマージ済み。PR #26 はユーザー報告によると、実装担当者以外のレビューで問題がないことを確認後にマージ |
+
+主な変更対象は `backend/src/main/java/com/attendance/exception/GlobalExceptionHandler.java`、`frontend/src/components/WorkTimeForm.tsx`、`e2e/features/step_definitions/req-uc003-work-time-entry.steps.ts`、`e2e/features/REQ-UC003-勤務時間入力.feature`。一覧の日付範囲、入力検証、保存・再取得もバックエンドテストと E2E で確認した。
 
 ---
 
@@ -136,4 +151,4 @@ stateDiagram-v2
 
 ---
 
-**最終更新日**: 2026-11-10
+**最終更新日**: 2026-11-11
