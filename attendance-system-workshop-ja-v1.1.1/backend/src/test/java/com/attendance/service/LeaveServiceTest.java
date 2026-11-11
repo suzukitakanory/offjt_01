@@ -41,6 +41,7 @@ class LeaveServiceTest {
     @Autowired
     private AttendanceRecordRepository attendanceRecordRepository;
 
+    /** 未使用日に登録し、返却値とDB上の区分・メモ・時刻を確認する。 */
     @Test
     void createsLeaveForUnusedDate() {
         LeaveResponse created = leaveService.create(request("2026-11-09", "Sick Leave", "体調不良", null))
@@ -57,6 +58,7 @@ class LeaveServiceTest {
         assertNull(stored.getClockOutTime());
     }
 
+    /** 空文字のメモをNULLで保存し、取得時は空文字で返すことを確認する。 */
     @Test
     void storesEmptyMemoAsNoMemo() {
         LeaveResponse created = leaveService.create(request("2026-11-10", "Personal Leave", "", null))
@@ -67,6 +69,7 @@ class LeaveServiceTest {
         assertEquals("", leaveService.getByDate("2026-11-10").getMemo());
     }
 
+    /** 空白だけのメモをNULLで保存することを確認する。 */
     @Test
     void storesWhitespaceOnlyMemoAsNoMemo() {
         LeaveResponse created = leaveService.create(request("2026-11-11", "Business Trip", " \n\t ", null))
@@ -76,6 +79,7 @@ class LeaveServiceTest {
         assertNull(find("2026-11-11").getNotes());
     }
 
+    /** 未対応区分を拒否し、勤怠レコードを作成しないことを確認する。 */
     @Test
     void rejectsUnsupportedLeaveType() {
         LeaveApiException exception = assertThrows(LeaveApiException.class,
@@ -87,6 +91,7 @@ class LeaveServiceTest {
                 .count());
     }
 
+    /** 501文字のメモをERR03007で拒否することを確認する。 */
     @Test
     void rejectsMemoLongerThan500Characters() {
         LeaveApiException exception = assertThrows(LeaveApiException.class,
@@ -95,6 +100,7 @@ class LeaveServiceTest {
         assertEquals("ERR03007", exception.getMessageId());
     }
 
+    /** 日付が未指定の場合にERR03004で拒否することを確認する。 */
     @Test
     void rejectsMissingDate() {
         LeaveApiException exception = assertThrows(LeaveApiException.class,
@@ -103,6 +109,7 @@ class LeaveServiceTest {
         assertEquals("ERR03004", exception.getMessageId());
     }
 
+    /** 休暇区分が未指定の場合にERR03005で拒否することを確認する。 */
     @Test
     void rejectsMissingLeaveType() {
         LeaveApiException exception = assertThrows(LeaveApiException.class,
@@ -111,6 +118,7 @@ class LeaveServiceTest {
         assertEquals("ERR03005", exception.getMessageId());
     }
 
+    /** 同日に休暇がある場合の重複拒否と、既存区分・メモが不変であることを確認する。 */
     @Test
     void rejectsSecondLeaveOnSameDateWithoutChangingExistingLeave() {
         leaveService.create(request("2026-11-15", "Sick Leave", "初日", null));
@@ -124,6 +132,7 @@ class LeaveServiceTest {
         assertEquals("初日", stored.getNotes());
     }
 
+    /** 未確認の勤務行を拒否し、既存の勤務区分と出退勤時刻を保持することを確認する。 */
     @Test
     void keepsWorkTimesWhenReplacementIsNotConfirmed() {
         saveWork("2026-11-16", LocalTime.of(9, 0), LocalTime.of(18, 0));
@@ -139,6 +148,7 @@ class LeaveServiceTest {
         assertThrows(LeaveApiException.class, () -> leaveService.getByDate("2026-11-16"));
     }
 
+    /** 確認済み勤務行を同じレコードのまま休暇に置換し、出退勤時刻を消すことを確認する。 */
     @Test
     void replacesConfirmedWorkRowAndClearsClockTimes() {
         AttendanceRecord work = saveWork("2026-11-17", LocalTime.of(8, 30), LocalTime.of(17, 30));
@@ -158,10 +168,12 @@ class LeaveServiceTest {
         assertEquals("Sick Leave", leaveService.getByDate("2026-11-17").getLeaveType());
     }
 
+    /** 各テストで使う休暇作成要求を組み立てる。 */
     private CreateLeaveRequest request(String date, String leaveType, String memo, Boolean confirmReplaceWork) {
         return new CreateLeaveRequest(date, leaveType, memo, confirmReplaceWork);
     }
 
+    /** 勤務行をDBに用意し、勤務日の置換動作を検証できるようにする。 */
     private AttendanceRecord saveWork(String date, LocalTime clockIn, LocalTime clockOut) {
         AttendanceRecord record = new AttendanceRecord();
         record.setEmployeeId(EMPLOYEE_ID);
@@ -172,6 +184,7 @@ class LeaveServiceTest {
         return attendanceRecordRepository.saveAndFlush(record);
     }
 
+    /** 指定日のDBレコードを取得し、保存結果の検証に使う。 */
     private AttendanceRecord find(String date) {
         return attendanceRecordRepository.findByEmployeeIdAndAttendanceDate(
                 EMPLOYEE_ID, LocalDate.parse(date)).orElseThrow();

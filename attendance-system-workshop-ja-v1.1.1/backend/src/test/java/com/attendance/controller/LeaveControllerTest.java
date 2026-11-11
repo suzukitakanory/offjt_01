@@ -35,6 +35,7 @@ class LeaveControllerTest {
     @MockBean
     private LeaveService leaveService;
 
+    /** 新規登録が201となり、休暇情報の応答に従業員IDを含めないことを確認する。 */
     @Test
     void createsLeaveWithStatus201() throws Exception {
         when(leaveService.create(any())).thenReturn(new LeaveService.CreationResult(
@@ -52,6 +53,7 @@ class LeaveControllerTest {
                 .andExpect(jsonPath("$.employeeId").doesNotExist());
     }
 
+    /** 確認済み勤務日の置換が200となり、確認フラグがサービスへ渡ることを確認する。 */
     @Test
     void replacesConfirmedWorkDayWithStatus200() throws Exception {
         when(leaveService.create(any())).thenReturn(new LeaveService.CreationResult(
@@ -68,6 +70,7 @@ class LeaveControllerTest {
         verify(leaveService).create(argThat(request -> Boolean.TRUE.equals(request.getConfirmReplaceWork())));
     }
 
+    /** 勤務行がない場合は確認フラグがあっても新規作成として201になることを確認する。 */
     @Test
     void createsUnusedDateWithStatus201EvenWhenConfirmationWasSent() throws Exception {
         when(leaveService.create(any())).thenReturn(new LeaveService.CreationResult(
@@ -93,6 +96,7 @@ class LeaveControllerTest {
                 .andExpect(jsonPath("$.memo").value("私用"));
     }
 
+    /** 日付が未指定の場合に400を返し、サービスを呼び出さないことを確認する。 */
     @Test
     void returns400WhenDateIsMissing() throws Exception {
         expectBadRequest("""
@@ -101,6 +105,7 @@ class LeaveControllerTest {
         verify(leaveService, never()).create(any());
     }
 
+    /** 休暇区分が未指定の場合に対応する400エラーを返すことを確認する。 */
     @Test
     void returns400WhenLeaveTypeIsMissing() throws Exception {
         expectBadRequest("""
@@ -108,6 +113,7 @@ class LeaveControllerTest {
                 """, ApiErrorResponse.ERR03005, "休暇区分を選択してください");
     }
 
+    /** 未対応の休暇区分を400エラーとして拒否することを確認する。 */
     @Test
     void returns400WhenLeaveTypeIsUnsupported() throws Exception {
         expectBadRequest("""
@@ -115,6 +121,7 @@ class LeaveControllerTest {
                 """, ApiErrorResponse.ERR03006, "対応する休暇区分を選択してください");
     }
 
+    /** 500文字を超えるメモを400エラーとして拒否することを確認する。 */
     @Test
     void returns400WhenMemoExceeds500Characters() throws Exception {
         expectBadRequest("""
@@ -122,6 +129,7 @@ class LeaveControllerTest {
                 """.formatted("あ".repeat(501)), ApiErrorResponse.ERR03007, "メモは500文字以内で入力してください");
     }
 
+    /** 休暇が存在しない日付の取得が404とERR02002になることを確認する。 */
     @Test
     void returns404WhenLeaveDoesNotExist() throws Exception {
         when(leaveService.getByDate("2026-11-18")).thenThrow(LeaveApiException.leaveNotFound());
@@ -133,6 +141,7 @@ class LeaveControllerTest {
                 .andExpect(jsonPath("$.timestamp").doesNotExist());
     }
 
+    /** 同日に休暇が既にある場合に409とERR02003を返すことを確認する。 */
     @Test
     void returns409WhenLeaveAlreadyExists() throws Exception {
         when(leaveService.create(any())).thenThrow(LeaveApiException.duplicateLeave());
@@ -148,6 +157,7 @@ class LeaveControllerTest {
                 .andExpect(jsonPath("$.timestamp").doesNotExist());
     }
 
+    /** 勤務日の置換確認がない場合に409とERR02005を返すことを確認する。 */
     @Test
     void returns409WhenWorkDayIsNotConfirmed() throws Exception {
         when(leaveService.create(any())).thenThrow(LeaveApiException.replaceRequiresConfirmation());
@@ -163,6 +173,7 @@ class LeaveControllerTest {
                 .andExpect(jsonPath("$.timestamp").doesNotExist());
     }
 
+    /** 不正入力の応答が400と指定されたエラーID・文言になることを共通確認する。 */
     private void expectBadRequest(String body, String error, String message) throws Exception {
         mockMvc.perform(post("/api/leaves").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isBadRequest())
