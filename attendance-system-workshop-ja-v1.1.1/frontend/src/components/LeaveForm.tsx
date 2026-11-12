@@ -143,7 +143,7 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
             ×
           </button>
         </header>
-        <p className="work-time-date">{date}</p>
+        <p className="work-time-date">{hasExistingLeave ? `${date} の休暇` : date}</p>
         <form onSubmit={handleSubmit} noValidate>
           <label className="work-time-field">
             休暇区分
@@ -237,7 +237,7 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
             aria-modal="true"
             aria-labelledby="leave-delete-confirmation-title"
           >
-            <h2 id="leave-delete-confirmation-title">休暇削除の確認</h2>
+            <h2 id="leave-delete-confirmation-title">削除確認</h2>
             <p>登録済みの休暇を削除しますか？</p>
             <div className="work-time-actions">
               <button
@@ -248,7 +248,7 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
                 キャンセル
               </button>
               <button type="button" onClick={() => void handleDelete()} disabled={isDeleting}>
-                {isDeleting ? '削除中...' : '確認'}
+                {isDeleting ? '削除中...' : '削除を確認'}
               </button>
             </div>
           </section>
