@@ -12,6 +12,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -100,6 +102,34 @@ class LeaveControllerTest {
                 .andExpect(jsonPath("$.date").value("2026-11-09"))
                 .andExpect(jsonPath("$.leaveType").value("Personal Leave"))
                 .andExpect(jsonPath("$.memo").value("私用"));
+    }
+
+    /** 期間一覧を返し、指定範囲がサービスへ渡ることを確認する。 */
+    @Test
+    void listsLeavesForPeriod() throws Exception {
+        when(leaveService.getLeaves("2026-12-01", "2026-12-31"))
+                .thenReturn(List.of(new LeaveResponse("2026-12-10", "Sick Leave", "通院")));
+
+        mockMvc.perform(get("/api/leaves")
+                        .param("from", "2026-12-01")
+                        .param("to", "2026-12-31"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].date").value("2026-12-10"))
+                .andExpect(jsonPath("$[0].leaveType").value("Sick Leave"))
+                .andExpect(jsonPath("$[0].memo").value("通院"));
+        verify(leaveService).getLeaves("2026-12-01", "2026-12-31");
+    }
+
+    /** 期間片側指定で400とERR03008を返すことを確認する。 */
+    @Test
+    void returns400WhenLeaveListPeriodIsIncomplete() throws Exception {
+        when(leaveService.getLeaves("2026-12-01", null))
+                .thenThrow(LeaveApiException.incompletePeriod());
+
+        mockMvc.perform(get("/api/leaves").param("from", "2026-12-01"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("ERR03008"))
+                .andExpect(jsonPath("$.message").value("開始日と終了日は両方指定してください"));
     }
 
     /** 日付が未指定の場合に400を返し、サービスを呼び出さないことを確認する。 */

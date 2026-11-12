@@ -16,6 +16,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -283,6 +284,56 @@ class LeaveServiceTest {
         assertEquals("WORK", stored.getStatus());
         assertEquals(LocalTime.of(9, 0), stored.getClockInTime());
         assertEquals(LocalTime.of(18, 0), stored.getClockOutTime());
+    }
+
+    /** 指定期間の両端を含めて休暇だけを返し、勤務のみの行を除外する。 */
+    @Test
+    void listsOnlyLeaveRecordsWithinInclusivePeriod() {
+        leaveService.create(request("2026-12-01", "Sick Leave", "開始日", null));
+        saveWork("2026-12-02", LocalTime.of(9, 0), LocalTime.of(18, 0));
+        leaveService.create(request("2026-12-03", "Personal Leave", "終了日", null));
+
+        List<LeaveResponse> results = leaveService.getLeaves("2026-12-01", "2026-12-03");
+
+        assertEquals(2, results.size());
+        assertTrue(results.stream().anyMatch(result -> result.getDate().equals("2026-12-01")
+                && result.getLeaveType().equals("Sick Leave")));
+        assertTrue(results.stream().anyMatch(result -> result.getDate().equals("2026-12-03")
+                && result.getLeaveType().equals("Personal Leave")));
+        assertTrue(results.stream().noneMatch(result -> result.getDate().equals("2026-12-02")));
+    }
+
+    /** 期間指定がない場合も勤務のみの行を除き、デモ従業員の休暇を返す。 */
+    @Test
+    void listsAllLeavesWithoutPeriodAndExcludesWorkRecords() {
+        leaveService.create(request("2026-12-10", "Business Trip", "全件取得", null));
+        saveWork("2026-12-11", LocalTime.of(9, 0), LocalTime.of(18, 0));
+
+        List<LeaveResponse> results = leaveService.getLeaves(null, null);
+
+        assertTrue(results.stream().anyMatch(result -> result.getDate().equals("2026-12-10")));
+        assertTrue(results.stream().noneMatch(result -> result.getDate().equals("2026-12-11")));
+    }
+
+    /** 期間の片側だけを指定した場合はERR03008で拒否する。 */
+    @Test
+    void rejectsIncompleteLeavePeriod() {
+        LeaveApiException missingEnd = assertThrows(LeaveApiException.class,
+                () -> leaveService.getLeaves("2026-12-04", null));
+        LeaveApiException missingStart = assertThrows(LeaveApiException.class,
+                () -> leaveService.getLeaves(null, "2026-12-04"));
+
+        assertEquals("ERR03008", missingEnd.getMessageId());
+        assertEquals("ERR03008", missingStart.getMessageId());
+    }
+
+    /** 期間の日付形式が不正な場合もERR03008で拒否する。 */
+    @Test
+    void rejectsInvalidDateInLeavePeriod() {
+        LeaveApiException exception = assertThrows(LeaveApiException.class,
+                () -> leaveService.getLeaves("2026-13-01", "2026-12-31"));
+
+        assertEquals("ERR03008", exception.getMessageId());
     }
 
     private CreateLeaveRequest request(String date, String leaveType, String memo, Boolean confirmReplaceWork) {

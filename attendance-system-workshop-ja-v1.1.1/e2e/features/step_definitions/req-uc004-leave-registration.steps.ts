@@ -411,6 +411,8 @@ Then('休暇一覧の期間指定エラー ERR03008 が返る', async function (
   const response = this.context.uc004LeaveListResponse;
   expect(response.status()).toBe(400);
   expect(await response.json()).toMatchObject({ error: 'ERR03008' });
+});
+
 Given('従業員が登録済み休暇を確認している', async function (this: World) {
   const date = getLeaveDate(this);
   const response = await request(this).get(`${API_URL}/${date}`);
