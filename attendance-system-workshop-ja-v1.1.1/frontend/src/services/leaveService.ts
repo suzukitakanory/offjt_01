@@ -99,3 +99,11 @@ export const getLeaveByDate = async (date: string): Promise<LeaveRecord | null> 
   if (!response.ok) return throwApiError(response)
   return readLeaveRecord(response)
 }
+
+/** 指定日の登録済み休暇を削除する。 */
+export const deleteLeave = async (date: string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/${encodeURIComponent(date)}`, {
+    method: 'DELETE',
+  })
+  if (!response.ok) return throwApiError(response)
+}

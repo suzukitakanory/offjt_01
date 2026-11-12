@@ -141,7 +141,7 @@ description: "休暇登録のタスク一覧"
 
 - [X] T031 [US4] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/service/LeaveService.java` に、休暇ステータスの行だけを削除する処理を追加する。対象がなければ何も削除せず404にする。
 - [X] T032 [US4] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/controller/LeaveController.java` に `DELETE /api/leaves/{date}` を実装し、成功は204、契約どおり400と404を返す。
-- [ ] T033 [P] [US4] `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/services/leaveService.ts` と `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/components/LeaveForm.tsx` に、SEQ-UC004-005 に従い、登録済み状態だけの削除ボタンと確認ダイアログを追加する。確定前は API を呼ばない。成功時は SUCCESS02004 を表示して閉じる。
+- [X] T033 [P] [US4] `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/services/leaveService.ts` と `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/components/LeaveForm.tsx` に、SEQ-UC004-005 に従い、登録済み状態だけの削除ボタンと確認ダイアログを追加する。確定前は API を呼ばない。成功時は SUCCESS02004 を表示して閉じる。
 - [ ] T034 [US4] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/` と `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/` で US4 のテストを実行し、勤務行が削除されないことを確認する。
 
 **確認地点**: 休暇の取消ができ、勤務行と存在しない対象は削除成功にならない

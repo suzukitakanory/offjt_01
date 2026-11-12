@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { LeaveApiError, createLeave, getLeaveByDate, updateLeave } from '../services/leaveService'
+import { LeaveApiError, createLeave, deleteLeave, getLeaveByDate, updateLeave } from '../services/leaveService'
 import { LEAVE_TYPES, type LeaveType } from '../types/leave'
 
 interface LeaveFormProps {
@@ -30,6 +30,9 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
   const [loadFailed, setLoadFailed] = useState(false)
   const [loadRequestId, setLoadRequestId] = useState(0)
   const [isSaving, setIsSaving] = useState(false)
+  const [hasExistingLeave, setHasExistingLeave] = useState(false)
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [message, setMessage] = useState('')
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
 
@@ -39,6 +42,8 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
     setLeaveType('')
     setMemo('')
     setIsRegistered(false)
+    setHasExistingLeave(false)
+    setIsSaving(false)
     setMessage('')
     setIsLoading(true)
     setLoadFailed(false)
@@ -49,6 +54,7 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
         setIsRegistered(true)
         setLeaveType(record.leaveType)
         setMemo(record.memo)
+        setHasExistingLeave(true)
       })
       .catch((error: unknown) => {
         if (!active) return
@@ -107,6 +113,22 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
     await saveLeave(leaveType, false)
   }
 
+  /** 確認済みの休暇を削除し、成功時にフォームを閉じる。 */
+  const handleDelete = async () => {
+    if (!hasExistingLeave || isLoading || loadFailed || isSaving || isDeleting) return
+    setIsDeleting(true)
+    setMessage('')
+    try {
+      await deleteLeave(date)
+      onSaved('休暇を削除しました')
+    } catch (error: unknown) {
+      setMessage(getErrorMessage(error))
+    } finally {
+      setIsDeleting(false)
+      setIsDeleteConfirmationOpen(false)
+    }
+  }
+
   return (
     <div className="work-time-backdrop">
       <section
@@ -161,10 +183,19 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
             </button>
           )}
           <div className="work-time-actions">
-            <button type="button" onClick={onCancel} disabled={isSaving}>
+            <button type="button" onClick={onCancel} disabled={isSaving || isDeleting}>
               キャンセル
             </button>
-            <button type="submit" disabled={isLoading || loadFailed || isSaving}>
+            {hasExistingLeave && (
+              <button
+                type="button"
+                onClick={() => setIsDeleteConfirmationOpen(true)}
+                disabled={isLoading || loadFailed || isSaving || isDeleting}
+              >
+                削除
+              </button>
+            )}
+            <button type="submit" disabled={isLoading || loadFailed || isSaving || isDeleting}>
               {isSaving ? '保存中...' : isRegistered ? '変更を保存' : '登録'}
             </button>
           </div>
@@ -193,6 +224,31 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
                 disabled={isSaving}
               >
                 確認
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+      {isDeleteConfirmationOpen && (
+        <div className="work-time-backdrop leave-confirmation-backdrop">
+          <section
+            className="work-time-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="leave-delete-confirmation-title"
+          >
+            <h2 id="leave-delete-confirmation-title">休暇削除の確認</h2>
+            <p>登録済みの休暇を削除しますか？</p>
+            <div className="work-time-actions">
+              <button
+                type="button"
+                onClick={() => setIsDeleteConfirmationOpen(false)}
+                disabled={isDeleting}
+              >
+                キャンセル
+              </button>
+              <button type="button" onClick={() => void handleDelete()} disabled={isDeleting}>
+                {isDeleting ? '削除中...' : '確認'}
               </button>
             </div>
           </section>
