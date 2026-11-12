@@ -15,6 +15,11 @@ export interface CreateLeaveRequest {
   confirmReplaceWork?: boolean
 }
 
+export interface UpdateLeaveRequest {
+  leaveType: LeaveType
+  memo?: string
+}
+
 export interface LeaveApiErrorResponse {
   error: string
   message: string
