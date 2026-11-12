@@ -362,13 +362,17 @@ When('従業員が休暇の変更を保存する', async function (this: World) 
   ]);
 });
 
-Then('変更後の休暇が再取得できる', async function (this: World) {
+Then('休暇区分が {string}、メモが {string} の休暇を再取得できる', async function (
+  this: World,
+  leaveType: string,
+  memo: string,
+) {
   const response = await request(this).get(`${API_URL}/${getLeaveDate(this)}`);
   expect(response.status()).toBe(200);
   expect(await response.json()).toMatchObject({
     date: getLeaveDate(this),
-    leaveType: 'Personal Leave',
-    memo: '私用に変更',
+    leaveType,
+    memo,
   });
 });
 

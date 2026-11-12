@@ -197,6 +197,34 @@ class LeaveServiceTest {
         assertEquals(LocalTime.of(18, 0), stored.getClockOutTime());
     }
 
+    /** 区分だけを変更したときに既存メモが維持されることを検証する。 */
+    @Test
+    void updatesLeaveTypeWithoutChangingMemo() {
+        leaveService.create(request("2027-01-15", "Sick Leave", "維持するメモ", null));
+
+        LeaveResponse updated = leaveService.update(
+                "2027-01-15", new UpdateLeaveRequest("Personal Leave", "維持するメモ"));
+
+        assertEquals("Personal Leave", updated.getLeaveType());
+        assertEquals("維持するメモ", updated.getMemo());
+        assertEquals("PERSONAL_LEAVE", find("2027-01-15").getStatus());
+        assertEquals("維持するメモ", find("2027-01-15").getNotes());
+    }
+
+    /** メモだけを変更したときに既存区分が維持されることを検証する。 */
+    @Test
+    void updatesMemoWithoutChangingLeaveType() {
+        leaveService.create(request("2027-01-16", "Sick Leave", "更新前", null));
+
+        LeaveResponse updated = leaveService.update(
+                "2027-01-16", new UpdateLeaveRequest("Sick Leave", "更新後"));
+
+        assertEquals("Sick Leave", updated.getLeaveType());
+        assertEquals("更新後", updated.getMemo());
+        assertEquals("SICK_LEAVE", find("2027-01-16").getStatus());
+        assertEquals("更新後", find("2027-01-16").getNotes());
+    }
+
     /** 更新時に空白のみのメモが空として保存されることを検証する。 */
     @Test
     void storesWhitespaceOnlyMemoAsNoMemoWhenUpdating() {
