@@ -301,7 +301,7 @@ class LeaveControllerTest {
         mockMvc.perform(delete("/api/leaves/2026-13-32"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("ERR03004"))
-                .andExpect(jsonPath("$.message").value("日付の形式が正しくありません"));
+                .andExpect(jsonPath("$.message").value("休暇日を指定してください"));
         verify(leaveService, never()).delete(anyString());
     }
 

@@ -3,6 +3,7 @@ package com.attendance.controller;
 import com.attendance.dto.CreateLeaveRequest;
 import com.attendance.dto.LeaveResponse;
 import com.attendance.dto.UpdateLeaveRequest;
+import com.attendance.exception.LeaveApiException;
 import com.attendance.service.LeaveService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @RestController
@@ -71,7 +74,16 @@ public class LeaveController {
      */
     @DeleteMapping("/{date}")
     public ResponseEntity<Void> delete(@PathVariable String date) {
+        validateDate(date);
         leaveService.delete(date);
         return ResponseEntity.noContent().build();
+    }
+
+    private void validateDate(String value) {
+        try {
+            LocalDate.parse(value);
+        } catch (DateTimeParseException | NullPointerException exception) {
+            throw LeaveApiException.missingDate();
+        }
     }
 }
