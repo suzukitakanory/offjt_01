@@ -429,9 +429,9 @@ Given('従業員が登録済み休暇を確認している', async function (thi
   const response = await request(this).get(`${API_URL}/${date}`);
   expect(response.status()).toBe(200);
   const leave = await response.json();
-  await selectDate(this, date);
+  await openLeaveForm(this);
   await expect(this.page.getByText(`${date} の休暇`)).toBeVisible();
-  await expect(this.page.getByText(leave.leaveType)).toBeVisible();
+  await expect(this.page.locator('select')).toHaveValue(leave.leaveType);
 });
 
 When('従業員が削除ボタンをクリックする', async function (this: World) {
@@ -440,16 +440,36 @@ When('従業員が削除ボタンをクリックする', async function (this: W
 });
 
 When('従業員が削除確認ダイアログで確認する', async function (this: World) {
-  await this.page.getByRole('button', { name: '削除を確認', exact: true }).click();
+  await Promise.all([
+    this.page.waitForResponse((response) =>
+      response.request().method() === 'DELETE' &&
+      response.url().includes('/api/leaves/')
+    ),
+    this.page.getByRole('button', { name: '削除を確認', exact: true }).click(),
+  ]);
 });
 
 When('従業員が削除確認ダイアログでキャンセルする', async function (this: World) {
-  await this.page.getByRole('button', { name: 'キャンセル' }).click();
+  await this.page.getByRole('dialog', { name: '削除確認' })
+    .getByRole('button', { name: 'キャンセル' }).click();
 });
 
 When('従業員が存在しない休暇を削除しようとする', async function (this: World) {
   const date = getLeaveDate(this);
+  const createResponse = await request(this).post(API_URL, {
+    data: {
+      date,
+      leaveType: 'Sick Leave',
+      memo: '削除競合',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  await this.page.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await openLeaveForm(this);
+  const deleteResponse = await request(this).delete(`${API_URL}/${date}`);
+  expect(deleteResponse.status()).toBe(204);
   await this.page.getByRole('button', { name: '削除' }).click();
+  await this.page.getByRole('button', { name: '削除を確認', exact: true }).click();
 });
 
 Then('休暇レコードが削除される', async function (this: World) {
