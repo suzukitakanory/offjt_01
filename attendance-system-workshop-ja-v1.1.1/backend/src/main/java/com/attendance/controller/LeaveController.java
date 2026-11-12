@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/leaves")
@@ -34,6 +37,16 @@ public class LeaveController {
         LeaveService.CreationResult result = leaveService.create(request);
         HttpStatus status = result.replacedWork() ? HttpStatus.OK : HttpStatus.CREATED;
         return ResponseEntity.status(status).body(result.response());
+    }
+
+    /**
+     * デモ従業員の休暇を期間指定で取得する。
+     */
+    @GetMapping
+    public List<LeaveResponse> getLeaves(
+            @RequestParam(value = "from", required = false) String from,
+            @RequestParam(value = "to", required = false) String to) {
+        return leaveService.getLeaves(from, to);
     }
 
     /**

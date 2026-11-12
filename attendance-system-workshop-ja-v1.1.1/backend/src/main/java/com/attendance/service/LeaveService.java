@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Service
 public class LeaveService {
@@ -88,9 +89,30 @@ public class LeaveService {
         LocalDate date = parseDate(value);
         AttendanceRecord record = repository.findByEmployeeIdAndAttendanceDate(employeeId, date)
                 .orElseThrow(LeaveApiException::leaveNotFound);
-        LeaveType leaveType = LeaveType.fromStatusCode(record.getStatus())
-                .orElseThrow(LeaveApiException::leaveNotFound);
-        return LeaveResponse.of(date.toString(), leaveType, record.getNotes());
+        return toLeaveResponse(record);
+    }
+
+    /**
+     * デモ従業員の休暇だけを取得する。期間を指定する場合は開始日と終了日の両方を必須にする。
+     */
+    @Transactional(readOnly = true)
+    public List<LeaveResponse> getLeaves(String from, String to) {
+        if ((from == null) != (to == null)) {
+            throw LeaveApiException.incompletePeriod();
+        }
+
+        List<AttendanceRecord> records;
+        if (from == null) {
+            records = repository.findByEmployeeId(employeeId);
+        } else {
+            records = repository.findByEmployeeIdAndAttendanceDateBetween(
+                    employeeId, parsePeriodDate(from), parsePeriodDate(to));
+        }
+
+        return records.stream()
+                .filter(record -> LeaveType.isLeaveStatus(record.getStatus()))
+                .map(this::toLeaveResponse)
+                .toList();
     }
 
     /**
@@ -105,6 +127,23 @@ public class LeaveService {
         } catch (DateTimeParseException exception) {
             throw LeaveApiException.missingDate();
         }
+    }
+
+    private LocalDate parsePeriodDate(String value) {
+        if (value.isBlank()) {
+            throw LeaveApiException.incompletePeriod();
+        }
+        try {
+            return LocalDate.parse(value);
+        } catch (DateTimeParseException exception) {
+            throw LeaveApiException.incompletePeriod();
+        }
+    }
+
+    private LeaveResponse toLeaveResponse(AttendanceRecord record) {
+        LeaveType leaveType = LeaveType.fromStatusCode(record.getStatus())
+                .orElseThrow(LeaveApiException::leaveNotFound);
+        return LeaveResponse.of(record.getAttendanceDate().toString(), leaveType, record.getNotes());
     }
 
     /**

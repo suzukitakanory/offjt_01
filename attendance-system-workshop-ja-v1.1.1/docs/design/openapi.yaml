@@ -181,14 +181,14 @@ paths:
           schema:
             type: string
             format: date
-          description: 開始日。指定する場合は to も必須
+          description: 開始日（この日を含む）。指定する場合は to も必須
         - name: to
           in: query
           required: false
           schema:
             type: string
             format: date
-          description: 終了日。指定する場合は from も必須
+          description: 終了日（この日を含む）。指定する場合は from も必須
       responses:
         '200':
           description: 休暇の一覧

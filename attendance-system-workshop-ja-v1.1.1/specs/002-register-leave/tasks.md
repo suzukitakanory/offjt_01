@@ -94,7 +94,7 @@ description: "休暇登録のタスク一覧"
 
 ### ユーザーストーリー 2 の実装
 
-- [ ] T018 [US2] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/service/LeaveService.java` と `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/controller/LeaveController.java` に `GET /api/leaves` を実装する。期間の片方だけは400 `ERR03008`、休暇コードのレコードだけを返し、勤務のみの日は含めない。
+- [X] T018 [US2] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/service/LeaveService.java` と `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/controller/LeaveController.java` に `GET /api/leaves` を実装する。期間の片方だけは400 `ERR03008`、休暇コードのレコードだけを返し、勤務のみの日は含めない。
 - [X] T019 [US2] `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/services/leaveService.ts` と `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/components/LeaveForm.tsx` に、SEQ-UC004-003 に従い、選択日の取得、保存値の初期表示、404と通信失敗の区別、未登録日の空フォームを実装する。取得失敗中は登録・変更・削除を実行させない。
 - [ ] T020 [US2] `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/` の `@REQ-UC004` を実行し、フォームを閉じて開き直しても保存値が表示されることを確認する。
 
