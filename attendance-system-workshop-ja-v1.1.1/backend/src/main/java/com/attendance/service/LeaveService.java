@@ -107,6 +107,28 @@ public class LeaveService {
         }
     }
 
+    /**
+     * 指定日の休暇行だけを更新する。対象がなければレコードを作成しない。
+     *
+     * @param date 更新対象日（ISO形式）
+     * @param request 更新要求
+     * @return 更新した休暇
+     */
+    @Transactional
+    public LeaveResponse update(String date, com.attendance.dto.UpdateLeaveRequest request) {
+        throw new UnsupportedOperationException("update は未実装です（T024 で実装予定）");
+    }
+
+    /**
+     * 指定日の休暇行だけを削除する。対象がなければ何も削除しない。
+     *
+     * @param date 削除対象日（ISO形式）
+     */
+    @Transactional
+    public void delete(String date) {
+        throw new UnsupportedOperationException("delete は未実装です（T031 で実装予定）");
+    }
+
     /** 保存結果と勤務記録を置換したかどうかを表す。 */
     public record CreationResult(LeaveResponse response, boolean replacedWork) {
     }

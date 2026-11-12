@@ -235,6 +235,56 @@ class LeaveServiceTest {
         assertEquals(LocalTime.of(18, 0), stored.getClockOutTime());
     }
 
+    /** 登録済みの休暇行を削除し、以降の取得で含まれないことを検証する。 */
+    @Test
+    void deletesLeaveAndMakesItUnavailable() {
+        leaveService.create(request("2026-11-22", "Sick Leave", "削除対象", null));
+
+        leaveService.delete("2026-11-22");
+
+        LeaveApiException exception = assertThrows(LeaveApiException.class,
+                () -> leaveService.getByDate("2026-11-22"));
+        assertEquals("ERR02002", exception.getMessageId());
+    }
+
+    /** 削除後に同じ日付へ再登録でき、新しい休暇として記録されることを検証する。 */
+    @Test
+    void canReregisterSameDateAfterDeletion() {
+        leaveService.create(request("2026-11-23", "Sick Leave", "削除前", null));
+        leaveService.delete("2026-11-23");
+
+        LeaveResponse created = leaveService.create(request("2026-11-23", "Personal Leave", "削除後", null))
+                .response();
+
+        assertEquals("2026-11-23", created.getDate());
+        assertEquals("Personal Leave", created.getLeaveType());
+        assertEquals("削除後", created.getMemo());
+    }
+
+    /** 削除対象がない場合、ERR02002を返すことを検証する。 */
+    @Test
+    void rejectsDeleteWhenLeaveDoesNotExist() {
+        LeaveApiException exception = assertThrows(LeaveApiException.class,
+                () -> leaveService.delete("2026-11-24"));
+
+        assertEquals("ERR02002", exception.getMessageId());
+    }
+
+    /** 勤務のみの日を削除対象にせず、勤務状態と時刻を維持することを検証する。 */
+    @Test
+    void rejectsDeleteWhenDateHasOnlyWorkAndKeepsWorkTimes() {
+        saveWork("2026-11-25", LocalTime.of(9, 0), LocalTime.of(18, 0));
+
+        LeaveApiException exception = assertThrows(LeaveApiException.class,
+                () -> leaveService.delete("2026-11-25"));
+
+        assertEquals("ERR02002", exception.getMessageId());
+        AttendanceRecord stored = find("2026-11-25");
+        assertEquals("WORK", stored.getStatus());
+        assertEquals(LocalTime.of(9, 0), stored.getClockInTime());
+        assertEquals(LocalTime.of(18, 0), stored.getClockOutTime());
+    }
+
     private CreateLeaveRequest request(String date, String leaveType, String memo, Boolean confirmReplaceWork) {
         return new CreateLeaveRequest(date, leaveType, memo, confirmReplaceWork);
     }
