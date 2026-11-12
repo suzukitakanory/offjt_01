@@ -126,7 +126,12 @@ public class LeaveService {
      */
     @Transactional
     public void delete(String date) {
-        throw new UnsupportedOperationException("delete は未実装です（T031 で実装予定）");
+        LocalDate parsedDate = parseDate(date);
+        AttendanceRecord record = repository.findByEmployeeIdAndAttendanceDate(employeeId, parsedDate)
+                .orElseThrow(LeaveApiException::leaveNotFound);
+        LeaveType.fromStatusCode(record.getStatus())
+                .orElseThrow(LeaveApiException::leaveNotFound);
+        repository.delete(record);
     }
 
     /** 保存結果と勤務記録を置換したかどうかを表す。 */
