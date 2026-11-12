@@ -1,0 +1,246 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-test:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: attendance-system-workshop-ja-v1.1.1/backend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: attendance-system-workshop-ja-v1.1.1/backend/pom.xml
+
+      - name: Run backend tests
+        run: mvn --batch-mode --no-transfer-progress verify
+
+  frontend-checks:
+    name: Frontend lint and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: attendance-system-workshop-ja-v1.1.1/frontend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+          cache-dependency-path: attendance-system-workshop-ja-v1.1.1/frontend/pnpm-lock.yaml
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ESLint
+        run: pnpm lint
+
+      - name: Build frontend
+        run: pnpm build
+
+  # Temporarily disabled because the end-to-end suite takes longer to run.
+  # e2e:
+  #   name: End-to-end tests
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - backend-test
+  #     - frontend-checks
+  #   timeout-minutes: 30
+  #   steps:
+  #     - name: Check out repository
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Set up Java
+  #       uses: actions/setup-java@v4
+  #       with:
+  #         distribution: temurin
+  #         java-version: '21'
+  #         cache: maven
+  #         cache-dependency-path: attendance-system-workshop-ja-v1.1.1/backend/pom.xml
+  #
+  #     - name: Set up pnpm
+  #       uses: pnpm/action-setup@v4
+  #       with:
+  #         version: 9
+  #
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+  #         cache: pnpm
+  #         cache-dependency-path: |
+  #           attendance-system-workshop-ja-v1.1.1/frontend/pnpm-lock.yaml
+  #           attendance-system-workshop-ja-v1.1.1/e2e/pnpm-lock.yaml
+  #
+  #     - name: Install frontend dependencies
+  #       working-directory: attendance-system-workshop-ja-v1.1.1/frontend
+  #       run: pnpm install --frozen-lockfile
+  #
+  #     - name: Install E2E dependencies
+  #       working-directory: attendance-system-workshop-ja-v1.1.1/e2e
+  #       run: pnpm install --frozen-lockfile
+  #
+  #     - name: Install Playwright browser
+  #       working-directory: attendance-system-workshop-ja-v1.1.1/e2e
+  #       run: pnpm exec playwright install --with-deps chromium
+  #
+  #     - name: Check E2E TypeScript
+  #       working-directory: attendance-system-workshop-ja-v1.1.1/e2e
+  #       run: pnpm exec tsc --noEmit
+  #
+  #     - name: Start backend
+  #       working-directory: attendance-system-workshop-ja-v1.1.1/backend
+  #       run: |
+  #         mvn --batch-mode --no-transfer-progress spring-boot:run > "$RUNNER_TEMP/backend.log" 2>&1 &
+  #         curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 2 --retry-max-time 90 http://localhost:8080/actuator/health || {
+  #           cat "$RUNNER_TEMP/backend.log"
+  #           exit 1
+  #         }
+  #
+  #     - name: Start frontend
+  #       working-directory: attendance-system-workshop-ja-v1.1.1/frontend
+  #       run: |
+  #         pnpm dev --host 0.0.0.0 > "$RUNNER_TEMP/frontend.log" 2>&1 &
+  #         curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 --retry-max-time 45 http://localhost:5173/ || {
+  #           cat "$RUNNER_TEMP/frontend.log"
+  #           exit 1
+  #         }
+  #
+  #     - name: Run Cucumber E2E tests
+  #       working-directory: attendance-system-workshop-ja-v1.1.1/e2e
+  #       run: pnpm test
+  #
+  #     - name: Upload E2E reports
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: cucumber-reports
+  #         path: |
+  #           attendance-system-workshop-ja-v1.1.1/e2e/reports/html/cucumber-report.html
+  #           attendance-system-workshop-ja-v1.1.1/e2e/reports/raw/cucumber-report.json
+  #           attendance-system-workshop-ja-v1.1.1/e2e/reports/junit.xml
+  #         if-no-files-found: warn
+
+  dependency-addition-warning:
+    name: Warn for new dependencies
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Warn when direct dependencies are added
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+          import xml.etree.ElementTree as ET
+
+          base_sha = os.environ["BASE_SHA"]
+          head_sha = os.environ["HEAD_SHA"]
+          app_root = "attendance-system-workshop-ja-v1.1.1"
+
+          def read_file(revision, path):
+              return subprocess.check_output(
+                  ["git", "show", f"{revision}:{path}"],
+                  text=True,
+              )
+
+          def package_dependencies(revision, path):
+              manifest = json.loads(read_file(revision, path))
+              names = set()
+              for section in (
+                  "dependencies",
+                  "devDependencies",
+                  "optionalDependencies",
+                  "peerDependencies",
+              ):
+                  names.update(manifest.get(section, {}))
+              return names
+
+          def local_name(tag):
+              return tag.rsplit("}", 1)[-1]
+
+          def maven_dependencies(revision, path):
+              root = ET.fromstring(read_file(revision, path))
+              dependencies = set()
+              for section in root:
+                  if local_name(section.tag) != "dependencies":
+                      continue
+                  for dependency in section:
+                      if local_name(dependency.tag) != "dependency":
+                          continue
+                      values = {
+                          local_name(child.tag): child.text
+                          for child in dependency
+                      }
+                      group_id = values.get("groupId")
+                      artifact_id = values.get("artifactId")
+                      if group_id and artifact_id:
+                          dependencies.add(f"{group_id}:{artifact_id}")
+              return dependencies
+
+          additions = []
+          for path in (
+              f"{app_root}/frontend/package.json",
+              f"{app_root}/e2e/package.json",
+          ):
+              before = package_dependencies(base_sha, path)
+              after = package_dependencies(head_sha, path)
+              additions.extend(
+                  f"{path}: {name}" for name in sorted(after - before)
+              )
+
+          pom_path = f"{app_root}/backend/pom.xml"
+          before = maven_dependencies(base_sha, pom_path)
+          after = maven_dependencies(head_sha, pom_path)
+          additions.extend(
+              f"{pom_path}: {name}" for name in sorted(after - before)
+          )
+
+          if additions:
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+                  summary.write("## New direct dependencies\n\n")
+                  for addition in additions:
+                      print(f"::warning title=Dependency added::{addition}")
+                      summary.write(f"- {addition}\n")
+          else:
+              print("No new direct dependencies detected.")
+          PY
