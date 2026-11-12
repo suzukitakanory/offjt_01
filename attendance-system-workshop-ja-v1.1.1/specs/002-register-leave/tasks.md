@@ -116,10 +116,10 @@ description: "休暇登録のタスク一覧"
 
 ### ユーザーストーリー 3 の実装
 
-- [ ] T024 [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/service/LeaveService.java` に、休暇ステータスの既存行だけを更新する処理を追加する。対象がなければ作成せず、空白のみのメモはメモなしにする。`attendance_date` と出勤・退勤時刻は変更しない。
-- [ ] T025 [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/controller/LeaveController.java` に `PUT /api/leaves/{date}` を実装し、契約の200、400、404を返す。日付はパスだけが決める。
-- [ ] T026 [P] [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/services/leaveService.ts` と `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/components/LeaveForm.tsx` に、SEQ-UC004-004 に従い更新呼び出しを追加し、読み込んだ休暇があるときだけ更新を送る。成功時は SUCCESS02003 を表示して閉じる。
-- [ ] T027 [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/` と `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/` で US3 のテストを実行し、存在しない更新でレコードが増えないことを確認する。
+- [X] T024 [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/service/LeaveService.java` に、休暇ステータスの既存行だけを更新する処理を追加する。対象がなければ作成せず、空白のみのメモはメモなしにする。`attendance_date` と出勤・退勤時刻は変更しない。
+- [X] T025 [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/controller/LeaveController.java` に `PUT /api/leaves/{date}` を実装し、契約の200、400、404を返す。日付はパスだけが決める。
+- [X] T026 [P] [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/services/leaveService.ts` と `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/components/LeaveForm.tsx` に、SEQ-UC004-004 に従い更新呼び出しを追加し、読み込んだ休暇があるときだけ更新を送る。成功時は SUCCESS02003 を表示して閉じる。
+- [X] T027 [US3] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/` と `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/` で US3 のテストを実行し、存在しない更新でレコードが増えないことを確認する。
 
 **確認地点**: 登録済み休暇を訂正でき、対象がない更新は成功にならない
 
