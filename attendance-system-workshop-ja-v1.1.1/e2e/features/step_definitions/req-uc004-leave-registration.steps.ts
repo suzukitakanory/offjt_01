@@ -20,6 +20,13 @@ const formatDateKey = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+/** 休暇日と勤務日の連続したテスト日を作るため、指定日数を加算する。 */
+const addDays = (date: string, days: number): string => {
+  const result = new Date(`${date}T00:00:00`);
+  result.setDate(result.getDate() + days);
+  return formatDateKey(result);
+};
+
 /** カレンダー見出しから年月を読み取り、判読できない場合は null を返す。 */
 const extractYearMonth = (title: string | null): { year: number; month: number } | null => {
   const match = title?.match(/(\d{4})年\s*(\d{1,2})月/);
@@ -232,6 +239,13 @@ const getLeaveDate = (world: World): string => {
   return date;
 };
 
+/** シナリオ開始時に確保した勤務のみの日付を取得する。 */
+const getWorkDate = (world: World): string => {
+  const date = world.context.uc004WorkDate;
+  if (typeof date !== 'string') throw new Error('勤務テスト日が設定されていません');
+  return date;
+};
+
 const openLeaveForm = async (world: World): Promise<void> => {
   const date = getLeaveDate(world);
   await selectDate(world, date);
@@ -239,11 +253,31 @@ const openLeaveForm = async (world: World): Promise<void> => {
   await expect(leaveDialog(world)).toBeVisible();
 };
 
-Before({ tags: '@leave' }, function (this: World) {
-  const date = new Date();
-  date.setDate(date.getDate() + 45 + scenarioIndex);
+Before({ tags: '@leave' }, async function (this: World) {
+  const offset = 45 + scenarioIndex * 2;
   scenarioIndex += 1;
-  this.context.uc004LeaveDate = formatDateKey(date);
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    const date = new Date();
+    date.setDate(date.getDate() + offset + attempt * 2);
+    const dateKey = formatDateKey(date);
+    const workDate = addDays(dateKey, 1);
+    const dates = [dateKey, workDate];
+    // 休暇・勤務データが未登録の日を連続で確保し、シナリオ間の既存データとの衝突を避ける。
+    const responses = await Promise.all(dates.flatMap((candidate) => [
+      request(this).get(`${API_URL}/${candidate}`),
+      request(this).get(`${API_BASE_URL}/api/attendance/EMP001/${candidate}`),
+    ]));
+    if (responses.every((response) => response.status() === 404)) {
+      this.context.uc004LeaveDate = dateKey;
+      this.context.uc004WorkDate = workDate;
+      return;
+    }
+    const unexpected = responses.find((response) => response.status() !== 200 && response.status() !== 404);
+    if (unexpected) {
+      throw new Error(`休暇テスト日の確認に失敗しました (HTTP ${unexpected.status()})`);
+    }
+  }
+  throw new Error('休暇テスト日の連続した2日間を確保できません');
 });
 
 Given('従業員のテスト休暇を登録済みにする', async function (this: World) {
@@ -257,8 +291,55 @@ Given('従業員のテスト休暇を登録済みにする', async function (thi
   expect(response.status()).toBe(201);
 });
 
+Given('期間内に勤務のみの日を用意する', async function (this: World) {
+  // 期間一覧が勤務データを休暇として返さないことを確認するため、WORKのみの記録を作る。
+  const response = await request(this).post(`${API_BASE_URL}/api/attendance`, {
+    data: {
+      employeeId: 'EMP001',
+      attendanceDate: getWorkDate(this),
+      clockInTime: '09:00',
+      clockOutTime: '18:00',
+      status: 'WORK',
+    },
+  });
+  expect(response.ok()).toBeTruthy();
+});
+
 Given('従業員が登録済み休暇の変更フォームを開く', async function (this: World) {
   await openLeaveForm(this);
+});
+
+Given('従業員が休暇未登録のテスト日を選択している', async function (this: World) {
+  await selectDate(this, getLeaveDate(this));
+});
+
+// フォームを閉じた後も、保存済みの休暇内容を再取得して表示できることを確認する。
+When('従業員が休暇登録フォームを閉じる', async function (this: World) {
+  await leaveDialog(this).getByRole('button', { name: '閉じる' }).click();
+  await expect(leaveDialog(this)).toHaveCount(0);
+});
+
+When('従業員が選択日の休暇登録フォームを再度開く', async function (this: World) {
+  await openLeaveForm(this);
+});
+
+// 通信失敗を未登録(404)と区別し、画面側のエラー表示・操作停止を検証する。
+When('休暇取得APIを失敗させて休暇登録フォームを開く', async function (this: World) {
+  await this.page.route(`**/api/leaves/${getLeaveDate(this)}`, (route) => route.abort('failed'));
+  await openLeaveForm(this);
+});
+
+When('従業員がテスト期間の休暇一覧を取得する', async function (this: World) {
+  this.context.uc004LeaveListResponse = await request(this).get(API_URL, {
+    params: { from: getLeaveDate(this), to: getWorkDate(this) },
+  });
+});
+
+// 期間の片側だけを指定した場合の入力検証レスポンスを確認する。
+When('従業員が開始日だけ指定して休暇一覧を取得する', async function (this: World) {
+  this.context.uc004LeaveListResponse = await request(this).get(API_URL, {
+    params: { from: getLeaveDate(this) },
+  });
 });
 
 When('従業員が休暇メモ {string} を入力する', async function (this: World, memo: string) {
@@ -296,6 +377,40 @@ Then('更新対象がないことが表示され成功扱いにならない', as
   await expect(this.page.getByText('休暇を変更しました', { exact: true })).toHaveCount(0);
 });
 
+Then('未登録日の休暇登録フォームは空で利用可能である', async function (this: World) {
+  await expect(leaveTypeField(this)).toHaveValue('');
+  await expect(memoField(this)).toHaveValue('');
+  await expect(leaveDialog(this).getByRole('alert')).toHaveCount(0);
+  await expect(leaveDialog(this).getByRole('button', { name: '登録' })).toBeEnabled();
+});
+
+// 取得失敗の通知に加えて、入力欄と登録操作が無効化されることを確認する。
+Then('休暇取得失敗が表示され操作が無効になる', async function (this: World) {
+  await expect(leaveDialog(this).getByRole('alert'))
+    .toHaveText('ネットワークエラーが発生しました。接続を確認してください。');
+  await expect(leaveTypeField(this)).toBeDisabled();
+  await expect(memoField(this)).toBeDisabled();
+  await expect(leaveDialog(this).getByRole('button', { name: '登録' })).toBeDisabled();
+});
+
+// 期間結果に対象休暇が含まれ、勤務のみの日が除外されていることを確認する。
+Then('休暇一覧に登録済み休暇が含まれ勤務日は含まれない', async function (this: World) {
+  const response = this.context.uc004LeaveListResponse;
+  expect(response.status()).toBe(200);
+  const records = await response.json();
+  expect(records).toEqual(expect.arrayContaining([expect.objectContaining({
+    date: getLeaveDate(this),
+    leaveType: 'Sick Leave',
+    memo: '更新前',
+  })]));
+  expect(records.map((record: { date: string }) => record.date)).not.toContain(getWorkDate(this));
+});
+
+// 開始日だけの指定が400とERR03008で拒否されることを確認する。
+Then('休暇一覧の期間指定エラー ERR03008 が返る', async function (this: World) {
+  const response = this.context.uc004LeaveListResponse;
+  expect(response.status()).toBe(400);
+  expect(await response.json()).toMatchObject({ error: 'ERR03008' });
 Given('従業員が登録済み休暇を確認している', async function (this: World) {
   const date = getLeaveDate(this);
   const response = await request(this).get(`${API_URL}/${date}`);

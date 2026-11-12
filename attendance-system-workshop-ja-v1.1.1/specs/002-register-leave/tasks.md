@@ -90,12 +90,12 @@ description: "休暇登録のタスク一覧"
 
 ### ユーザーストーリー 2 のテスト ⚠️
 
-- [ ] T017 [US2] `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/features/REQ-UC004-休暇登録.feature` と `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/features/step_definitions/req-uc004-leave-registration.steps.ts` に、保存済み休暇の再表示、機能を離れても残ること、未登録日、取得失敗と休暇なしの区別を検証する `@REQ-UC004` シナリオを追加する。初期表示の404はエラー表示にしない。
+- [X] T017 [US2] `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/features/REQ-UC004-休暇登録.feature` と `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/features/step_definitions/req-uc004-leave-registration.steps.ts` に、保存済み休暇の再表示、機能を離れても残ること、未登録日、取得失敗と休暇なしの区別、期間一覧での勤務日の除外、期間片側指定の400を検証する `@REQ-UC004` シナリオを追加する。初期表示の404はエラー表示にしない。
 
 ### ユーザーストーリー 2 の実装
 
 - [ ] T018 [US2] `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/service/LeaveService.java` と `offjt_01/attendance-system-workshop-ja-v1.1.1/backend/src/main/java/com/attendance/controller/LeaveController.java` に `GET /api/leaves` を実装する。期間の片方だけは400 `ERR03008`、休暇コードのレコードだけを返し、勤務のみの日は含めない。
-- [ ] T019 [US2] `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/services/leaveService.ts` と `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/components/LeaveForm.tsx` に、SEQ-UC004-003 に従い、選択日の取得、保存値の初期表示、404と通信失敗の区別、未登録日の空フォームを実装する。取得失敗中は登録・変更・削除を実行させない。
+- [X] T019 [US2] `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/services/leaveService.ts` と `offjt_01/attendance-system-workshop-ja-v1.1.1/frontend/src/components/LeaveForm.tsx` に、SEQ-UC004-003 に従い、選択日の取得、保存値の初期表示、404と通信失敗の区別、未登録日の空フォームを実装する。取得失敗中は登録・変更・削除を実行させない。
 - [ ] T020 [US2] `offjt_01/attendance-system-workshop-ja-v1.1.1/e2e/` の `@REQ-UC004` を実行し、フォームを閉じて開き直しても保存値が表示されることを確認する。
 
 **確認地点**: 既存データを取得するだけで、保存内容の確認と休暇なしの判定ができる
