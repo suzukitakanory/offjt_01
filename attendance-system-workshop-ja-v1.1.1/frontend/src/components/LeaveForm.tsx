@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { LeaveApiError, createLeave, getLeaveByDate } from '../services/leaveService'
+import { LeaveApiError, createLeave, getLeaveByDate, updateLeave } from '../services/leaveService'
 import { LEAVE_TYPES, type LeaveType } from '../types/leave'
 
 interface LeaveFormProps {
@@ -25,6 +25,7 @@ const getErrorMessage = (error: unknown): string =>
 const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
   const [leaveType, setLeaveType] = useState<LeaveType | ''>('')
   const [memo, setMemo] = useState('')
+  const [isRegistered, setIsRegistered] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [loadFailed, setLoadFailed] = useState(false)
   const [loadRequestId, setLoadRequestId] = useState(0)
@@ -37,6 +38,7 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
     let active = true
     setLeaveType('')
     setMemo('')
+    setIsRegistered(false)
     setMessage('')
     setIsLoading(true)
     setLoadFailed(false)
@@ -44,6 +46,7 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
     getLeaveByDate(date)
       .then((record) => {
         if (!active || !record) return
+        setIsRegistered(true)
         setLeaveType(record.leaveType)
         setMemo(record.memo)
       })
@@ -66,13 +69,18 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
     setIsSaving(true)
     setMessage('')
     try {
-      await createLeave({
-        date,
-        leaveType: type,
-        memo,
-        confirmReplaceWork,
-      })
-      onSaved('休暇を登録しました')
+      if (isRegistered) {
+        await updateLeave(date, { leaveType: type, memo })
+        onSaved('休暇を変更しました')
+      } else {
+        await createLeave({
+          date,
+          leaveType: type,
+          memo,
+          confirmReplaceWork,
+        })
+        onSaved('休暇を登録しました')
+      }
     } catch (error: unknown) {
       if (error instanceof LeaveApiError && error.errorCode === 'ERR02005') {
         setIsConfirmationOpen(true)
@@ -157,7 +165,7 @@ const LeaveForm = ({ date, onCancel, onSaved }: LeaveFormProps) => {
               キャンセル
             </button>
             <button type="submit" disabled={isLoading || loadFailed || isSaving}>
-              {isSaving ? '保存中...' : '登録'}
+              {isSaving ? '保存中...' : isRegistered ? '変更を保存' : '登録'}
             </button>
           </div>
         </form>

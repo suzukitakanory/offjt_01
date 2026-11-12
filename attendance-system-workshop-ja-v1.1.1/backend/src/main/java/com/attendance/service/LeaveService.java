@@ -2,6 +2,7 @@ package com.attendance.service;
 
 import com.attendance.dto.CreateLeaveRequest;
 import com.attendance.dto.LeaveResponse;
+import com.attendance.dto.UpdateLeaveRequest;
 import com.attendance.entity.AttendanceRecord;
 import com.attendance.entity.LeaveType;
 import com.attendance.exception.LeaveApiException;
@@ -154,8 +155,30 @@ public class LeaveService {
      * @return 更新した休暇
      */
     @Transactional
-    public LeaveResponse update(String date, com.attendance.dto.UpdateLeaveRequest request) {
-        throw new UnsupportedOperationException("update は未実装です（T024 で実装予定）");
+    public LeaveResponse update(String value, UpdateLeaveRequest request) {
+        LocalDate date = parseDate(value);
+        if (request == null || request.getLeaveType() == null || request.getLeaveType().isBlank()) {
+            throw LeaveApiException.missingLeaveType();
+        }
+        LeaveType leaveType = LeaveType.fromDisplayName(request.getLeaveType())
+                .orElseThrow(LeaveApiException::unsupportedLeaveType);
+        String memo = request.getMemo();
+        if (memo != null && memo.length() > 500) {
+            throw LeaveApiException.memoTooLong();
+        }
+        if (memo != null && memo.isBlank()) {
+            memo = null;
+        }
+
+        AttendanceRecord record = repository.findByEmployeeIdAndAttendanceDate(employeeId, date)
+                .orElseThrow(LeaveApiException::leaveNotFound);
+        LeaveType.fromStatusCode(record.getStatus())
+                .orElseThrow(LeaveApiException::leaveNotFound);
+
+        record.setStatus(leaveType.getStatusCode());
+        record.setNotes(memo);
+        repository.save(record);
+        return toLeaveResponse(record);
     }
 
     /**

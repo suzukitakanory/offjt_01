@@ -352,7 +352,14 @@ When('保存前に対象休暇を削除する', async function (this: World) {
 });
 
 When('従業員が休暇の変更を保存する', async function (this: World) {
-  await this.page.getByRole('button', { name: '変更を保存', exact: true }).click();
+  const updateResponse = this.page.waitForResponse((response) =>
+    response.request().method() === 'PUT' &&
+    response.url().endsWith(`/api/leaves/${getLeaveDate(this)}`),
+  );
+  await Promise.all([
+    updateResponse,
+    this.page.getByRole('button', { name: '変更を保存', exact: true }).click(),
+  ]);
 });
 
 Then('変更後の休暇が再取得できる', async function (this: World) {

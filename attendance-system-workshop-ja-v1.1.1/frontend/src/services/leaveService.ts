@@ -1,4 +1,10 @@
-import { LEAVE_TYPES, type CreateLeaveRequest, type LeaveApiErrorResponse, type LeaveRecord } from '../types/leave'
+import {
+  LEAVE_TYPES,
+  type CreateLeaveRequest,
+  type LeaveApiErrorResponse,
+  type LeaveRecord,
+  type UpdateLeaveRequest,
+} from '../types/leave'
 
 const API_BASE_URL = '/api/leaves'
 
@@ -64,6 +70,19 @@ const readLeaveRecord = async (response: Response): Promise<LeaveRecord> => {
 export const createLeave = async (request: CreateLeaveRequest): Promise<LeaveRecord> => {
   const response = await fetch(API_BASE_URL, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  })
+  if (!response.ok) return throwApiError(response)
+  return readLeaveRecord(response)
+}
+
+/** 指定日の既存休暇を更新し、更新結果を検証して返す。 */
+export const updateLeave = async (date: string, request: UpdateLeaveRequest): Promise<LeaveRecord> => {
+  const response = await fetch(`${API_BASE_URL}/${encodeURIComponent(date)}`, {
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
