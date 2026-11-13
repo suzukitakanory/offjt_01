@@ -41,9 +41,13 @@ attendance-system-ja/
 │   ├── issues/ISS-XXX.md
 │   ├── managements/issue-status.md
 │   ├── requirements/REQ-UC00X-*.md
+│   ├── testing/
+│   │   └── regression-test-plan.md
 │   ├── templates/
 │   │   └── issues/ISS-XXX-issue.template.md
 │   └── managements/dev-status.md
+├── scripts/
+│   └── run-regression-tests.sh
 ├── .github/                      # ワークフローと Copilot 指示書
 │   ├── copilot-instructions.md
 │   ├── instructions/
@@ -59,6 +63,7 @@ attendance-system-ja/
 - **[体験ガイド](サンプルアプリケーションの体験ガイド.md)** - AI Native 開発と Issue ベース保守開発の体験手順
 - **[要件定義](docs/requirements/)** - REQ-UC00X 系のユーザーストーリー
 - **[設計資料](docs/design/)** - `openapi.yaml`、UI/DB/シーケンス図などの詳細設計
+- **[回帰テスト計画](docs/testing/regression-test-plan.md)** - UC001・UC002 の確認項目と実行方法
 - **[Issue 管理](docs/managements/issue-status.md)** - 保守開発向け Issue 一覧とステータス管理
 - **[Issue ドキュメント](docs/issues/)** - 個別 Issue の調査・解決記録
 - **[テンプレート](docs/templates/)** - 要件・設計・管理系ドキュメントの雛形
