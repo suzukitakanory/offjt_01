@@ -156,6 +156,10 @@ stateDiagram-v2
 | バックエンド | `mvn test` — 84テスト成功 |
 | フロントエンド | `pnpm --ignore-workspace run build`、`pnpm --ignore-workspace run lint` 成功 |
 | E2E | `@REQ-UC004` — 20シナリオ・155ステップ成功 |
+| 回帰テスト（REQ-UC001） | `mvn -Dtest=HealthCheckTest test` — 3テスト成功（失敗0、エラー0、スキップ0） |
+| 回帰E2E（REQ-UC001・REQ-UC002） | `pnpm test:regression` — 9シナリオ・51ステップ成功 |
+
+回帰テスト一括スクリプトの初回実行では、バックエンドテストは成功したが、E2E前提サービスが停止していたためE2Eはスキップされ、終了コード1となった。その後、ローカルのテスト用サービスを起動してE2Eを実行し、全シナリオが成功した。
 
 ---
 
