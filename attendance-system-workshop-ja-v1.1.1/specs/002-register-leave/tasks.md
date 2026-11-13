@@ -152,9 +152,9 @@ description: "休暇登録のタスク一覧"
 
 **目的**: 設計書との一致と、ローカル検証の完了を確認する
 
-- [ ] T035 [P] `offjt_01/attendance-system-workshop-ja-v1.1.1/README.md` に、休暇機能がデモ従業員 ID `EMP001` だけを扱い、認証や本番データベース接続を含まないことを記載する。
-- [ ] T036 [P] `offjt_01/attendance-system-workshop-ja-v1.1.1/docs/managements/dev-status.md` の REQ-UC004 を、T016、T020、T027、T034 が成功したあとだけ「実装・試験済」に更新する。テスト未完了のまま完了にしない。
-- [ ] T037 `specs/002-register-leave/quickstart.md` の起動、`mvn test`、フロントエンドの `pnpm build` と `pnpm lint`、`@REQ-UC004` の確認を実行し、無関係な変更が残っていないことを確認する。
+- [X] T035 [P] `offjt_01/attendance-system-workshop-ja-v1.1.1/README.md` に、休暇機能がデモ従業員 ID `EMP001` だけを扱い、認証や本番データベース接続を含まないことを記載する。
+- [X] T036 [P] `offjt_01/attendance-system-workshop-ja-v1.1.1/docs/managements/dev-status.md` の REQ-UC004 を、T016、T020、T027、T034 が成功したあとだけ「実装・試験済」に更新する。テスト未完了のまま完了にしない。
+- [X] T037 `specs/002-register-leave/quickstart.md` の起動、`mvn test`、フロントエンドの `pnpm build` と `pnpm lint`、`@REQ-UC004` の確認を実行し、無関係な変更が残っていないことを確認する。
 
 ---
 

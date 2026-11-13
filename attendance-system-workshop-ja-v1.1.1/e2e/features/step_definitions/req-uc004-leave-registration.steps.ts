@@ -69,7 +69,7 @@ const request = (world: World): APIRequestContext => world.page.request;
 
 /** 休暇登録対象の日付をカレンダーで選択する。 */
 Given('従業員が休暇登録対象の日付 {string} を選択している', async function (this: World, date: string) {
-  await selectDate(this, date);
+  await selectDate(this, resolveLeaveFeatureDate(this, date));
 });
 
 /** 指定の休暇をAPIで事前登録し、対象日をシナリオ状態に保存する。 */
@@ -81,11 +81,12 @@ Given('従業員 {string} が日付 {string} に {string} を登録済みであ�
 ) {
   expect(employeeId).toBe('EMP001');
   expect(LEAVE_TYPES).toContain(leaveType);
+  const resolvedDate = resolveLeaveFeatureDate(this, date);
   const response = await request(this).post(`${API_BASE_URL}/api/leaves`, {
-    data: { date, leaveType, memo: '登録済み' },
+    data: { date: resolvedDate, leaveType, memo: '登録済み' },
   });
   expect(response.status()).toBe(201);
-  this.context.selectedDate = date;
+  this.context.selectedDate = resolvedDate;
 });
 
 /** 指定の勤務時間をAPIで事前登録し、対象日をシナリオ状態に保存する。 */
@@ -94,24 +95,37 @@ Given('従業員 {string} が日付 {string} に勤務時間を登録済みで�
   employeeId: string,
   date: string,
 ) {
+  const resolvedDate = resolveLeaveFeatureDate(this, date);
   const response = await request(this).post(`${API_BASE_URL}/api/attendance`, {
     data: {
       employeeId,
-      attendanceDate: date,
+      attendanceDate: resolvedDate,
       clockInTime: '09:00',
       clockOutTime: '18:00',
       status: 'WORK',
     },
   });
   expect(response.ok()).toBeTruthy();
-  this.context.selectedDate = date;
-  this.context.workDate = date;
+  this.context.selectedDate = resolvedDate;
+  this.context.workDate = resolvedDate;
 });
 
 /** 休暇登録フォームを開き、ダイアログが表示されたことを確認する。 */
 When('従業員が休暇登録を開始する', async function (this: World) {
   await this.page.getByRole('button', { name: '休暇登録' }).click();
   await expect(leaveDialog(this)).toBeVisible();
+});
+
+When('別のリクエストで同日の休暇を登録する', async function (this: World) {
+  await expect(leaveDialog(this).getByRole('button', { name: '登録' })).toBeEnabled();
+  const response = await request(this).post(API_URL, {
+    data: {
+      date: getLeaveDate(this),
+      leaveType: 'Sick Leave',
+      memo: '同時登録',
+    },
+  });
+  expect(response.status()).toBe(201);
 });
 
 /** フォームで指定された休暇区分を選択する。 */
@@ -155,8 +169,9 @@ Then('休暇登録ダイアログが表示される', async function (this: Worl
 
 /** ダイアログに指定日が表示され、日付形式も正しいことを確認する。 */
 Then('休暇日に {string} が表示される', async function (this: World, date: string) {
-  await expect(leaveDialog(this).getByText(date, { exact: true })).toBeVisible();
-  expect(formatDateKey(new Date(`${date}T00:00:00`))).toBe(date);
+  const resolvedDate = resolveLeaveFeatureDate(this, date);
+  await expect(leaveDialog(this).getByText(resolvedDate, { exact: true })).toBeVisible();
+  expect(formatDateKey(new Date(`${resolvedDate}T00:00:00`))).toBe(resolvedDate);
 });
 
 /** 休暇区分の入力欄が表示されていることを確認する。 */
@@ -245,6 +260,10 @@ const getWorkDate = (world: World): string => {
   if (typeof date !== 'string') throw new Error('勤務テスト日が設定されていません');
   return date;
 };
+
+/** Featureの固定サンプル日付を、シナリオごとに確保したテスト日へ置き換える。 */
+const resolveLeaveFeatureDate = (world: World, date: string): string =>
+  date === '2026-11-14' ? getWorkDate(world) : getLeaveDate(world);
 
 const openLeaveForm = async (world: World): Promise<void> => {
   const date = getLeaveDate(world);
@@ -464,8 +483,8 @@ When('従業員が存在しない休暇を削除しようとする', async funct
     },
   });
   expect(createResponse.status()).toBe(201);
-  await this.page.getByRole('button', { name: 'キャンセル', exact: true }).click();
   await openLeaveForm(this);
+  await expect(leaveDialog(this).getByRole('button', { name: '削除' })).toBeEnabled();
   const deleteResponse = await request(this).delete(`${API_URL}/${date}`);
   expect(deleteResponse.status()).toBe(204);
   await this.page.getByRole('button', { name: '削除' }).click();

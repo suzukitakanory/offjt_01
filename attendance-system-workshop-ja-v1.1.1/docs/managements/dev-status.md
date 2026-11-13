@@ -80,7 +80,7 @@
 | REQ-UC001 | システム起動   | 完了   | e2e/features/REQ-UC001-システム起動.feature   | -                        |
 | REQ-UC002 | カレンダー操作 | 完了   | e2e/features/REQ-UC002-カレンダー操作.feature | REQ-UC001                |
 | REQ-UC003 | 勤務時間入力   | 完了   | e2e/features/REQ-UC003-勤務時間入力.feature   | REQ-UC001, REQ-UC002     |
-| REQ-UC004 | 休暇登録       | ローレベル設計済 | e2e/features/REQ-UC004-休暇登録.feature       | REQ-UC001, REQ-UC002     |
+| REQ-UC004 | 休暇登録       | 実装・試験済 | e2e/features/REQ-UC004-休暇登録.feature       | REQ-UC001, REQ-UC002     |
 
 ### 状態定義
 
@@ -135,9 +135,9 @@ stateDiagram-v2
 
 ---
 
-### REQ-UC004: 休暇登録のローレベル設計
+### REQ-UC004: 休暇登録
 
-状態: **ローレベル設計済**（2026-11-09）。実装前に人間のレビューを要する。
+状態: **実装・試験済**（2026-11-13）。ローレベル設計は2026-11-09に完了。
 
 | 成果物 | パス | 更新 |
 | ------ | ---- | ---- |
@@ -147,8 +147,16 @@ stateDiagram-v2
 | API設計書 | `docs/design/openapi.yaml` | `/api/leaves` のスキーマ、例、エラーコードを追記 |
 | メッセージ定義書 | `docs/design/message-definition.md` | SUCCESS02002〜02004、ERR02002、ERR02003、ERR03004〜03008 を追加 |
 
-新しいテーブルは追加していない。現行 `backend/init-db/01-schema.sql` にはステータスの CHECK 制約がないため、実装時にテーブル定義書へ合わせる。
+新しいテーブルは追加していない。`backend/init-db/01-schema.sql` のステータスと時刻の CHECK 制約はテーブル定義書に合わせて実装済み。
+
+#### 実装・試験（2026-11-13）
+
+| 工程 | 確認内容 |
+| ---- | -------- |
+| バックエンド | `mvn test` — 84テスト成功 |
+| フロントエンド | `pnpm --ignore-workspace run build`、`pnpm --ignore-workspace run lint` 成功 |
+| E2E | `@REQ-UC004` — 20シナリオ・155ステップ成功 |
 
 ---
 
-**最終更新日**: 2026-11-11
+**最終更新日**: 2026-11-13
