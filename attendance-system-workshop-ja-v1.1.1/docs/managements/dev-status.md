@@ -80,7 +80,7 @@
 | REQ-UC001 | システム起動   | 完了   | e2e/features/REQ-UC001-システム起動.feature   | -                        |
 | REQ-UC002 | カレンダー操作 | 完了   | e2e/features/REQ-UC002-カレンダー操作.feature | REQ-UC001                |
 | REQ-UC003 | 勤務時間入力   | 完了   | e2e/features/REQ-UC003-勤務時間入力.feature   | REQ-UC001, REQ-UC002     |
-| REQ-UC004 | 休暇登録       | 実装・試験済 | e2e/features/REQ-UC004-休暇登録.feature       | REQ-UC001, REQ-UC002     |
+| REQ-UC004 | 休暇登録       | 完了   | e2e/features/REQ-UC004-休暇登録.feature       | REQ-UC001, REQ-UC002     |
 
 ### 状態定義
 
@@ -137,7 +137,7 @@ stateDiagram-v2
 
 ### REQ-UC004: 休暇登録
 
-状態: **実装・試験済**（2026-11-13）。ローレベル設計は2026-11-09に完了。
+状態: **完了**（2026-11-13）。ローレベル設計は2026-11-09に完了。
 
 | 成果物 | パス | 更新 |
 | ------ | ---- | ---- |
